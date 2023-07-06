@@ -37,6 +37,7 @@
     "nodemailer": "^6.7.1",
     "passport": "^0.4.1",
     "tslib": "^2.3.1",
+    "uglifyjs": "^2.4.11",
     "uuid": "^9.0.0"
   }
 }
