@@ -26,7 +26,7 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.set('view engine', 'jade')
+// app.set('view engine', 'jade')
 app.use('/api', router(express, passport))
 app.use('/qrcodes', express.static('qrcodes'))
 
