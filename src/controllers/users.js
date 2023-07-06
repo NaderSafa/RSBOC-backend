@@ -89,7 +89,7 @@ const findOne = (req, res) => {
       console.log(error)
       res.status(500).send(error)
     } else if (user) {
-      res.send({ user: user, ...generateToken(user.type) })
+      res.send({ user: user })
     } else {
       res.status(404).send({ message: `User not found` })
     }
