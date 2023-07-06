@@ -5,13 +5,16 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon ."
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NaderSafa/RSBOC-backend.git"
   },
   "author": "Nader Safa",
+  "engines": {
+    "node": "18.12.1"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/NaderSafa/RSBOC-backend/issues"
