@@ -13,7 +13,7 @@
   },
   "author": "Nader Safa",
   "engines": {
-    "node": "18.12.1"
+    "node": "14.x"
   },
   "license": "ISC",
   "bugs": {
