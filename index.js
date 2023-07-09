@@ -5,6 +5,7 @@ import passport from 'passport'
 import morgan from 'morgan'
 import router from './src/router.js'
 import dbConfig from './config/mongoDB.js'
+import cors from 'cors'
 
 // DB Setup
 mongoose.connect(
@@ -22,14 +23,14 @@ db.once('open', () => {
 
 // Express Setup
 const app = express()
+app.use(morgan('combined'))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(cors())
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   next()
 })
-app.use(morgan('combined'))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
-
 // app.set('view engine', 'jade')
 app.use('/api', router(express, passport))
 app.use('/qrcodes', express.static('qrcodes'))
