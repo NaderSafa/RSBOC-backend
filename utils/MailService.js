@@ -3,8 +3,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // Mailgun configuration
-const domain = process.env.MAILGUN_DOMAIN
-const apiKey = process.env.MAILGUN_API_KEY
+const domain = 'sandboxf74ee44f6b914b618eea7785cc3c4d31.mailgun.org'
+const apiKey = '530f5b6045854c54b83f2b77a47effe0-6d8d428c-079e5347'
 
 import Mailgun from 'mailgun-js'
 
