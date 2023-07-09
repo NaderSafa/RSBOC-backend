@@ -10,7 +10,7 @@ import Mailgun from 'mailgun-js'
 
 const mailgun = new Mailgun({ domain, apiKey })
 
-export default {
+const test = {
   sendMail: (mailTo, mailSubject, mailText, html, attachments = []) => {
     mailgun
       .messages()
@@ -26,3 +26,5 @@ export default {
       .catch((err) => console.log(err))
   },
 }
+
+export default test

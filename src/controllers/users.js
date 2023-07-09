@@ -12,7 +12,7 @@ import {
 import jwtConfig from '../../config/jwtConfig.js'
 import { firebaseApp } from '../../utils/firebaseInitialization.js'
 import mailHtml from '../../assets/mail.html.js'
-import mailService from '../../utils/mailService.js'
+import test from '../../utils/mailService.js'
 import { APP_URL } from '../../config/urls.js'
 
 const auth = getAuth(firebaseApp)
@@ -94,7 +94,7 @@ const register = async (req, res) => {
       full_name,
     })
 
-    mailService.sendMail(
+    test.sendMail(
       email,
       'Verify your account.',
       null,
