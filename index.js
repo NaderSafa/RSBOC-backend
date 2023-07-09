@@ -22,6 +22,10 @@ db.once('open', () => {
 
 // Express Setup
 const app = express()
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  next()
+})
 app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
