@@ -1,8 +1,19 @@
 import User from '../models/user.js'
 import Developer from '../models/developer.js'
 import Attachment from '../models/attachment.js'
+import jwt from 'jsonwebtoken'
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 
 import { v4 as uuidv4 } from 'uuid'
+import jwtConfig from '../../config/jwtConfig.js'
+import { firebaseApp } from '../../utils/firebaseInitialization.js'
+
+const auth = getAuth(firebaseApp)
 
 function generateToken(type) {
   const token = uuidv4()
@@ -83,36 +94,127 @@ const findAll = (req, res) => {
 //   res.json(user)
 // }
 
-const findOne = (req, res) => {
-  User.findOne({ uid: req.params.user_id }, (error, user) => {
-    if (error) {
-      console.log(error)
-      res.status(500).send(error)
-    } else if (user) {
-      res.send({ user: user })
-    } else {
-      res.status(404).send({ message: `User not found` })
+const findOne = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      email: req.currentUser.email,
+    })
+
+    if (!user) {
+      return
+      res.status(400).json({
+        message: 'User not found.',
+      })
     }
-  })
+    res.status(200).json({
+      message: 'Fetched user',
+      user,
+    })
+    console.log('step')
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - findOne - UsersController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
+}
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body
+    const user = await User.findOne({ email: email })
+    if (!user) {
+      return res.status(404).json({
+        message: 'Either your login email or password is incorrect.',
+      })
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        let tokenCriteria = {
+          email,
+          role: user.role,
+          accessToken: await userCredential.user.getIdToken(),
+          id: user.id,
+        }
+
+        const userDB = await User.findOne({ uid: userCredential.user.uid })
+
+        if (!userDB) return res.status(404).json({ message: 'User not found.' })
+        // Adding pharmacy or supplier id
+
+        const accessToken = jwt.sign(tokenCriteria, jwtConfig.JWT_SECRET)
+
+        return res.status(200).json({
+          message: 'Login successful.',
+          accessToken,
+        })
+      })
+      .catch((error) => {
+        let errorCode = error.code
+        let message
+        switch (errorCode) {
+          case 'auth/email-already-in-use':
+            message = 'Email already registered.'
+            break
+
+          case 'auth/invalid-email':
+            message = 'Invalid email.'
+            break
+
+          case 'auth/operation-not-allowed':
+            message = 'Email/password accounts are not enabled in firebase.'
+            break
+
+          case 'auth/weak-password':
+            message = 'Weak password.'
+            break
+          case 'auth/wrong-password':
+            message = 'Wrong username or password.'
+            break
+        }
+      })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - signin - UsersController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
 }
 
 const create = (req, res) => {
   // for (let step = 0; step < 5000; step++) {
-  new User({
-    ...req.body,
-  }).save((error, user) => {
-    if (error || !user) {
-      console.log(error)
-      res.status(500).send(error)
-    } else {
-      res.send({
-        message: 'User created successfully',
-        user: user,
+  createUserWithEmailAndPassword(auth, req.body.email, req.body.password)
+    .then((userCredential) => {
+      // Signed in
+      const user = userCredential.user
+      new User({
+        uid: user.uid.toString(),
+        email: req.body.email,
+        full_name: req.body.full_name,
+      }).save((error, user) => {
+        if (error || !user) {
+          console.log(error)
+          res.status(500).send(error)
+        } else {
+          res.send({
+            message: 'User created successfully',
+            user: user,
+          })
+          console.log('success')
+        }
       })
-      console.log('success')
-    }
-  })
-  // }
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code
+      const errorMessage = error.message
+      // ..
+    })
 }
 // Handle update user info
 const update = (req, res) => {
@@ -192,6 +294,7 @@ export default {
   create,
   update,
   destroy,
+  login,
   getDeveloperTitle,
   getUserRegisteredEventIds,
   registerNotificationToken,

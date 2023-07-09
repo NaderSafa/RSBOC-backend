@@ -3,14 +3,13 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
+  uid: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  first_name: { type: String, required: true },
-  last_name: { type: String, required: true },
+  full_name: { type: String, required: true },
   nick_name: { type: String },
   birth_date: { type: Date },
   gender: { type: String, enum: ['M', 'F'] },
-  type: { type: String, enum: ['player', 'coach', 'admin'], default: 'player' },
-  admin: { type: Boolean, default: false },
+  role: { type: String, enum: ['player', 'admin'], default: 'player' },
   profile_picture_url: { type: String },
   club_id: { type: mongoose.Types.ObjectId },
   preferred_hand: { type: String, enum: ['R', 'L'] },
