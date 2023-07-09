@@ -31,6 +31,8 @@ export default (express, passport, adminJs) => {
       RegistrationsController.saveQRCodeToFS
     )
     .post('/users/login', UsersController.login)
+    .post('/users/register', UsersController.register)
+    .post('/users/verifyEmail', UsersController.verifyEmail)
     .post(
       '/users/:user_id/registration',
       RegistrationsController.addRegistration

@@ -9,41 +9,13 @@ import {
   signInWithEmailAndPassword,
 } from 'firebase/auth'
 
-import { v4 as uuidv4 } from 'uuid'
 import jwtConfig from '../../config/jwtConfig.js'
 import { firebaseApp } from '../../utils/firebaseInitialization.js'
+import mailHtml from '../../assets/mail.html.js'
+import mailService from '../../utils/mailService.js'
+import { APP_URL } from '../../config/urls.js'
 
 const auth = getAuth(firebaseApp)
-
-function generateToken(type) {
-  const token = uuidv4()
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60)
-  return {
-    token: token,
-    expiresAt: expiresAt,
-    type: type,
-  }
-}
-
-function decryptToken(token) {
-  const parts = token.split('.')
-  if (parts.length !== 3) {
-    // Invalid token
-    return null
-  }
-
-  const tokenId = parts[0]
-  const expiresAt = parts[1]
-  const type = parts[2]
-
-  if (uuid.isValid(tokenId) && new Date() < new Date(expiresAt)) {
-    // Token is valid
-    return type
-  } else {
-    // Token is expired
-    return null
-  }
-}
 
 const getDeveloperTitle = (req, res) => {
   User.findOne({ uid: req.params.user_id }, (error, user) => {
@@ -78,21 +50,6 @@ const findAll = (req, res) => {
     }
   })
 }
-// Handle view user info
-// const findOne = (req, res) => {
-//   // Get the user ID from the request
-//   const userId = req.params.userId
-
-//   // Find the user by the ID
-//   const user = User.findById(userId)
-//   if (!user) {
-//     // User not found
-//     res.status(404).send('User not found')
-//   }
-
-//   // Return the user object
-//   res.json(user)
-// }
 
 const findOne = async (req, res) => {
   try {
@@ -114,6 +71,112 @@ const findOne = async (req, res) => {
   } catch (err) {
     console.log(err)
     console.log('Catch - findOne - UsersController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
+}
+
+// POST: Register using email
+const register = async (req, res) => {
+  try {
+    const { email, full_name } = req.body
+    const user = await User.findOne({
+      email,
+    })
+    if (user)
+      return res.status(400).json({
+        message: 'User already existed',
+      })
+    const newUser = await User.create({
+      email,
+      full_name,
+    })
+
+    mailService.sendMail(
+      email,
+      'Verify your account.',
+      null,
+      mailHtml(
+        full_name,
+        `Follow the below link to verify your email address. 
+        If you didn’t ask to verify this address, you can ignore this email.`,
+        'Verify your account',
+        email,
+        'Verify your account',
+        `${APP_URL}/create-password/?id=${newUser.id}`
+      )
+    )
+    res.status(200).json({
+      message: 'User created.',
+    })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - signup - UsersController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
+}
+
+//POST: Verify email using email & password
+const verifyEmail = async (req, res) => {
+  try {
+    const { id, password } = req.body
+    const user = await User.findById(id)
+    if (!user)
+      return res.status(404).json({
+        message: 'User not found.',
+      })
+    createUserWithEmailAndPassword(auth, user.email, password)
+      .then(async (fbUser) => {
+        await User.updateOne(
+          {
+            _id: id,
+          },
+          {
+            $set: {
+              verified: true,
+              uid: fbUser.user.uid,
+            },
+          }
+        )
+
+        res.status(200).json({
+          message: 'User is verified.',
+        })
+      })
+      .catch((error) => {
+        let errorCode = error.code
+        let message
+        switch (errorCode) {
+          case 'auth/email-already-in-use':
+            message = 'Email already registered.'
+            break
+
+          case 'auth/invalid-email':
+            message = 'Invalid email.'
+            break
+
+          case 'auth/operation-not-allowed':
+            message = 'Email/password accounts are not enabled in firebase.'
+            break
+
+          case 'auth/weak-password':
+            message = 'Weak password.'
+            break
+        }
+
+        console.log(error)
+        return res.status(406).json({
+          message: message ? message : 'Something went wrong.',
+        })
+      })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - VerifyEmail - UsersController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -295,6 +358,8 @@ export default {
   update,
   destroy,
   login,
+  register,
+  verifyEmail,
   getDeveloperTitle,
   getUserRegisteredEventIds,
   registerNotificationToken,

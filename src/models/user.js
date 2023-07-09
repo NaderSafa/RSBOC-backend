@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
-  uid: { type: String, required: true, unique: true },
+  uid: { type: String, unique: true },
   email: { type: String, required: true, unique: true },
   full_name: { type: String, required: true },
   nick_name: { type: String },
@@ -14,6 +14,7 @@ const userSchema = new Schema({
   club_id: { type: mongoose.Types.ObjectId },
   preferred_hand: { type: String, enum: ['R', 'L'] },
   height: { type: Number, min: 140, max: 240 },
+  verified: { type: Boolean, default: false },
   approved: { type: Boolean, default: false },
 })
 
