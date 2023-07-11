@@ -11,9 +11,9 @@ import {
 
 import jwtConfig from '../../config/jwtConfig.js'
 import { firebaseApp } from '../../utils/firebaseInitialization.js'
-import mailHtml from '../../assets/mail.html.js'
-import test from '../../utils/mailService.js'
-import { APP_URL } from '../../config/urls.js'
+// import mailHtml from '../../assets/mail.html.js'
+// import test from '../../utils/mailService.js'
+// import { APP_URL } from '../../config/urls.js'
 
 const auth = getAuth(firebaseApp)
 
@@ -78,111 +78,163 @@ const findOne = async (req, res) => {
   }
 }
 
-// POST: Register using email
-const register = async (req, res) => {
-  try {
-    const { email, full_name } = req.body
-    const user = await User.findOne({
-      email,
-    })
-    if (user)
-      return res.status(400).json({
-        message: 'User already existed',
-      })
-    const newUser = await User.create({
-      email,
-      full_name,
+// POST: Register and verify
+const registerCombined = async (req, res) => {
+  const { email, full_name, password } = req.body
+  const user = await User.findOne({
+    email,
+  })
+  if (user)
+    return res.status(400).json({
+      message: 'User already existed',
     })
 
-    test.sendMail(
-      email,
-      'Verify your account.',
-      null,
-      mailHtml(
-        full_name,
-        `Follow the below link to verify your email address. 
-        If you didn’t ask to verify this address, you can ignore this email.`,
-        'Verify your account',
+  // create firebase user
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(async (fbUser) => {
+      await User.create({
+        uid: fbUser.user.uid,
         email,
-        'Verify your account',
-        `${APP_URL}/create-password/?id=${newUser.id}`
-      )
-    )
-    res.status(200).json({
-      message: 'User created.',
-    })
-  } catch (err) {
-    console.log(err)
-    console.log('Catch - signup - UsersController')
+        full_name,
+      })
 
-    res.status(400).json({
-      message: 'Something went wrong.',
+      res.status(200).json({
+        message: 'User is created, please update your profile',
+      })
     })
-  }
+    .catch((error) => {
+      let errorCode = error.code
+      let message
+      switch (errorCode) {
+        case 'auth/email-already-in-use':
+          message = 'Email already registered.'
+          break
+
+        case 'auth/invalid-email':
+          message = 'Invalid email.'
+          break
+
+        case 'auth/operation-not-allowed':
+          message = 'Email/password accounts are not enabled in firebase.'
+          break
+
+        case 'auth/weak-password':
+          message = 'Weak password.'
+          break
+      }
+
+      console.log(error)
+      return res.status(406).json({
+        message: message ? message : 'Something went wrong.',
+      })
+    })
 }
+
+// POST: Register using email
+// const register = async (req, res) => {
+//   try {
+//     const { email, full_name } = req.body
+//     const user = await User.findOne({
+//       email,
+//     })
+//     if (user)
+//       return res.status(400).json({
+//         message: 'User already existed',
+//       })
+//     const newUser = await User.create({
+//       email,
+//       full_name,
+//     })
+
+//     test.sendMail(
+//       email,
+//       'Verify your account.',
+//       null,
+//       mailHtml(
+//         full_name,
+//         `Follow the below link to verify your email address.
+//         If you didn’t ask to verify this address, you can ignore this email.`,
+//         'Verify your account',
+//         email,
+//         'Verify your account',
+//         `${APP_URL}/create-password/?id=${newUser.id}`
+//       )
+//     )
+//     res.status(200).json({
+//       message: 'User created.',
+//     })
+//   } catch (err) {
+//     console.log(err)
+//     console.log('Catch - signup - UsersController')
+
+//     res.status(400).json({
+//       message: 'Something went wrong.',
+//     })
+//   }
+// }
 
 //POST: Verify email using email & password
-const verifyEmail = async (req, res) => {
-  try {
-    const { id, password } = req.body
-    const user = await User.findById(id)
-    if (!user)
-      return res.status(404).json({
-        message: 'User not found.',
-      })
-    createUserWithEmailAndPassword(auth, user.email, password)
-      .then(async (fbUser) => {
-        await User.updateOne(
-          {
-            _id: id,
-          },
-          {
-            $set: {
-              verified: true,
-              uid: fbUser.user.uid,
-            },
-          }
-        )
+// const verifyEmail = async (req, res) => {
+//   try {
+//     const { id, password } = req.body
+//     const user = await User.findById(id)
+//     if (!user)
+//       return res.status(404).json({
+//         message: 'User not found.',
+//       })
+//     createUserWithEmailAndPassword(auth, user.email, password)
+//       .then(async (fbUser) => {
+//         await User.updateOne(
+//           {
+//             _id: id,
+//           },
+//           {
+//             $set: {
+//               verified: true,
+//               uid: fbUser.user.uid,
+//             },
+//           }
+//         )
 
-        res.status(200).json({
-          message: 'User is verified.',
-        })
-      })
-      .catch((error) => {
-        let errorCode = error.code
-        let message
-        switch (errorCode) {
-          case 'auth/email-already-in-use':
-            message = 'Email already registered.'
-            break
+//         res.status(200).json({
+//           message: 'User is verified.',
+//         })
+//       })
+//       .catch((error) => {
+//         let errorCode = error.code
+//         let message
+//         switch (errorCode) {
+//           case 'auth/email-already-in-use':
+//             message = 'Email already registered.'
+//             break
 
-          case 'auth/invalid-email':
-            message = 'Invalid email.'
-            break
+//           case 'auth/invalid-email':
+//             message = 'Invalid email.'
+//             break
 
-          case 'auth/operation-not-allowed':
-            message = 'Email/password accounts are not enabled in firebase.'
-            break
+//           case 'auth/operation-not-allowed':
+//             message = 'Email/password accounts are not enabled in firebase.'
+//             break
 
-          case 'auth/weak-password':
-            message = 'Weak password.'
-            break
-        }
+//           case 'auth/weak-password':
+//             message = 'Weak password.'
+//             break
+//         }
 
-        console.log(error)
-        return res.status(406).json({
-          message: message ? message : 'Something went wrong.',
-        })
-      })
-  } catch (err) {
-    console.log(err)
-    console.log('Catch - VerifyEmail - UsersController')
+//         console.log(error)
+//         return res.status(406).json({
+//           message: message ? message : 'Something went wrong.',
+//         })
+//       })
+//   } catch (err) {
+//     console.log(err)
+//     console.log('Catch - VerifyEmail - UsersController')
 
-    res.status(400).json({
-      message: 'Something went wrong.',
-    })
-  }
-}
+//     res.status(400).json({
+//       message: 'Something went wrong.',
+//     })
+//   }
+// }
 
 const login = async (req, res) => {
   try {
@@ -358,8 +410,9 @@ export default {
   update,
   destroy,
   login,
-  register,
-  verifyEmail,
+  // register,
+  registerCombined,
+  // verifyEmail,
   getDeveloperTitle,
   getUserRegisteredEventIds,
   registerNotificationToken,
