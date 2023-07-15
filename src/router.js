@@ -9,18 +9,21 @@ import { authorizeUser } from '../middlewares/authorizeUser.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
-    return express
-      .Router()
-      .get(`/`, authenticateUser, authorizeUser('all'), controller.findOne)
-      .get(
-        `/:${identifier}`,
-        authenticateUser,
-        authorizeUser('admin'),
-        controller.findOne
-      )
-      .post(`/`, controller.create)
-      .put(`/:${identifier}`, controller.update)
-      .delete(`/:${identifier}`, controller.destroy)
+    return (
+      express
+        .Router()
+        .get(`/`, authenticateUser, authorizeUser('all'), controller.findOne)
+        .get(
+          `/:${identifier}`,
+          authenticateUser,
+          authorizeUser('admin'),
+          controller.findOne
+        )
+        .post(`/`, controller.create)
+        .patch(`/`, authenticateUser, authorizeUser('all'), controller.update)
+        // .put(`/:${identifier}`, controller.update)
+        .delete(`/:${identifier}`, controller.destroy)
+    )
   }
 
   return (

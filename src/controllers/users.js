@@ -2,6 +2,7 @@ import User from '../models/user.js'
 import Developer from '../models/developer.js'
 import Attachment from '../models/attachment.js'
 import jwt from 'jsonwebtoken'
+import mongodb from 'mongodb'
 
 import {
   getAuth,
@@ -332,35 +333,60 @@ const create = (req, res) => {
     })
 }
 // Handle update user info
-const update = (req, res) => {
-  User.findById(req.params.user_id, (error, user) => {
-    if (error) {
-      console.log(error)
-      res.status(500).send(error)
-    } else if (user) {
-      Object.keys(req.body).forEach((key) => {
-        if (req.body) {
-          user[key] = req.body[key]
-        }
-      })
+const update = async (req, res) => {
+  try {
+    await User.updateOne(
+      {
+        _id: new mongodb.ObjectID(req.currentUser.id),
+      },
+      {
+        $set: {
+          ...req.body,
+        },
+      }
+    )
+    res.status(200).json({
+      message: 'User updated.',
+    })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - update - UsersController')
 
-      console.log(user)
-      user.save((error, user) => {
-        if (error || !user) {
-          console.log(error)
-          res.status(500).send(error)
-        } else {
-          res.send({
-            message: 'User updated successfully',
-            user: user,
-          })
-        }
-      })
-    } else {
-      res.status(404).send({ message: 'User not found' })
-    }
-  })
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
 }
+
+// const update = (req, res) => {
+//   User.findById(req.params.user_id, (error, user) => {
+//     if (error) {
+//       console.log(error)
+//       res.status(500).send(error)
+//     } else if (user) {
+//       Object.keys(req.body).forEach((key) => {
+//         if (req.body) {
+//           user[key] = req.body[key]
+//         }
+//       })
+
+//       console.log(user)
+//       user.save((error, user) => {
+//         if (error || !user) {
+//           console.log(error)
+//           res.status(500).send(error)
+//         } else {
+//           res.send({
+//             message: 'User updated successfully',
+//             user: user,
+//           })
+//         }
+//       })
+//     } else {
+//       res.status(404).send({ message: 'User not found' })
+//     }
+//   })
+// }
 // Handle delete user
 const destroy = (req, res) => {
   User.remove({ _id: req.params.user_id }, (error) => {
