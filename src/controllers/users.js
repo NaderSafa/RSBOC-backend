@@ -350,6 +350,7 @@ const update = async (req, res) => {
     res
       .status(401)
       .json({ message: "You don't have the authority to change these fields" })
+    return
   }
 
   try {
