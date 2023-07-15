@@ -334,6 +334,24 @@ const create = (req, res) => {
 }
 // Handle update user info
 const update = async (req, res) => {
+  if (!req.body?.full_name) {
+    res.status(400).json({
+      message: 'Full Name is a required field',
+    })
+    return
+  }
+  if (req.body?._id || req.body?.email || req.body?.uid) {
+    res.status(400).json({
+      message: 'These fields can not be updated',
+    })
+    return
+  }
+  if (req.body?.verified || req.body?.approved) {
+    res
+      .status(401)
+      .json({ message: "You don't have the authority to change these fields" })
+  }
+
   try {
     await User.updateOne(
       {
@@ -346,7 +364,7 @@ const update = async (req, res) => {
       }
     )
     res.status(200).json({
-      message: 'User updated.',
+      message: 'User updated successfully!',
     })
   } catch (err) {
     console.log(err)
