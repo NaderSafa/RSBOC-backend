@@ -7,6 +7,7 @@ const firebaseSDKConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   projectId: process.env.FIREBASE_PROJECT_ID,
   authDomain: `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  storageBucket: `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
 }
 
 // Firebase Admin Configuration

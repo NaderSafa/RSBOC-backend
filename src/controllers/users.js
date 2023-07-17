@@ -3,6 +3,7 @@ import Developer from '../models/developer.js'
 import Attachment from '../models/attachment.js'
 import jwt from 'jsonwebtoken'
 import mongodb from 'mongodb'
+import multer from 'multer'
 
 import {
   getAuth,
@@ -11,13 +12,20 @@ import {
 } from 'firebase/auth'
 
 import jwtConfig from '../../config/jwtConfig.js'
-import { firebaseApp } from '../../utils/firebaseInitialization.js'
+import { firebaseApp, storage } from '../../utils/firebaseInitialization.js'
+import {
+  getStorage,
+  ref,
+  getDownloadURL,
+  uploadBytesResumable,
+} from 'firebase/storage'
 // import mailHtml from '../../assets/mail.html.js'
 // import test from '../../utils/mailService.js'
 // import { APP_URL } from '../../config/urls.js'
 
 const auth = getAuth(firebaseApp)
 
+// Setting up multer as a middleware to grab photo uploads
 const getDeveloperTitle = (req, res) => {
   User.findOne({ uid: req.params.user_id }, (error, user) => {
     if (error) {
@@ -334,7 +342,7 @@ const create = (req, res) => {
 }
 // Handle update user info
 const update = async (req, res) => {
-  if (!req.body?.full_name) {
+  if (!req.body?.full_name && !req.body?.profile_picture_url) {
     res.status(400).json({
       message: 'Full Name is a required field',
     })
@@ -346,12 +354,16 @@ const update = async (req, res) => {
     })
     return
   }
-  if (req.body?.verified || req.body?.approved) {
+  if (req.body?.verified || req.body?.approved || req.body?.role) {
     res
-      .status(401)
+      .status(403)
       .json({ message: "You don't have the authority to change these fields" })
     return
   }
+
+  req.body = req.body?.dob
+    ? { ...req.body, dob: new Date(req.body.dob).toISOString() }
+    : req.body
 
   try {
     await User.updateOne(
@@ -448,6 +460,52 @@ const registerNotificationToken = (req, res) => {
   })
 }
 
+const uploadProfilePicture = async (req, res) => {
+  try {
+    const dateTime = giveCurrentDateTime()
+    const storageRef = ref(
+      storage,
+      `uploads/${req.currentUser.id + '       ' + dateTime}`
+    )
+
+    // Create file metadata including the content type
+    const metadata = {
+      contentType: req.file.mimetype,
+    }
+
+    // Upload the file in the bucket storage
+    const snapshot = await uploadBytesResumable(
+      storageRef,
+      req.file.buffer,
+      metadata
+    )
+    //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+
+    // Grab the public url
+    const downloadURL = await getDownloadURL(snapshot.ref)
+
+    console.log('File successfully uploaded.')
+    return res.send({
+      message: 'file uploaded to firebase storage',
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      downloadURL: downloadURL,
+    })
+  } catch (error) {
+    return res.status(400).send(error.message)
+  }
+}
+
+const giveCurrentDateTime = () => {
+  const today = new Date()
+  const date =
+    today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+  const time =
+    today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds()
+  const dateTime = date + ' ' + time
+  return dateTime
+}
+
 export default {
   findAll,
   findOne,
@@ -457,6 +515,7 @@ export default {
   login,
   // register,
   registerCombined,
+  uploadProfilePicture,
   // verifyEmail,
   getDeveloperTitle,
   getUserRegisteredEventIds,

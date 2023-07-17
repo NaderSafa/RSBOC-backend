@@ -6,6 +6,7 @@ import ResultsController from './controllers/results.js'
 import NotificationsController from './controllers/notifications.js'
 import authenticateUser from '../middlewares/authenticateUser.js'
 import { authorizeUser } from '../middlewares/authorizeUser.js'
+import multer from 'multer'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
@@ -16,7 +17,7 @@ export default (express, passport, adminJs) => {
         .get(
           `/:${identifier}`,
           authenticateUser,
-          authorizeUser('admin'),
+          authorizeUser('all'),
           controller.findOne
         )
         .post(`/`, controller.create)
@@ -26,10 +27,19 @@ export default (express, passport, adminJs) => {
     )
   }
 
+  const upload = multer({ storage: multer.memoryStorage() })
+
   return (
     express
       .Router()
       .use('/users', getCrudMethods(UsersController, 'user_id'))
+      .post(
+        '/users/upload',
+        authenticateUser,
+        authorizeUser('all'),
+        upload.single('filename'),
+        UsersController.uploadProfilePicture
+      )
       .post(
         '/users/:user_id/registrations/:registration_id/qrcode',
         RegistrationsController.saveQRCodeToFS
