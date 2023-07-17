@@ -46,31 +46,115 @@ const getDeveloperTitle = (req, res) => {
 }
 
 // Handle index actions
+// const findAll = (req, res) => {
+//   User.find({ role: 'player' }, (error, users) => {
+//     if (error) {
+//       console.log(error)
+//       res.status(500).send(error)
+//     } else {
+//       console.log(req.params)
+//       res.send({ message: 'Fetched Users', users: users })
+//     }
+//   })
+// }
+
+// GET: return all users
 const findAll = (req, res) => {
-  User.find({}, (error, users) => {
-    if (error) {
-      console.log(error)
-      res.status(500).send(error)
-    } else {
-      console.log(req.params)
-      req.query.token === 'wvGe5xbCkyiDcpnFTbzex8iQsYHceSYR'
-        ? res.send(users)
-        : res.send('Success')
-    }
-  })
+  try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const query = {}
+
+    const userRole = req.currentUser.role
+
+    if (req.query.verified) query.verified = parseInt(req.query.verified)
+    if (req.query.approved) query.approved = parseInt(req.query.approved)
+    if (req.query.role)
+      query.role = userRole === 'player' ? 'player' : req.query.role
+    if (req.query.preferred_hand)
+      query.preferred_hand = req.query.preferred_hand
+
+    User.find(
+      query,
+      {
+        full_name: 1,
+        profile_picture_url: 1,
+        weight: 1,
+        height: 1,
+        preferred_hand: 1,
+        approved: 1,
+        dob: 1,
+        country: 1,
+      },
+      {
+        sort: { [req.query.sortByField]: req.query.sortByOrder || 1 },
+        limit: limit,
+        skip: (page - 1) * limit,
+        // order: [['id', 'DESC']],
+        // attributes: { exclude: ['updatedAt'] },
+      },
+      async (err, users) => {
+        if (err) {
+          console.log(err)
+          return
+        }
+        const totalCount = await User.countDocuments(query)
+
+        res.status(200).json({
+          message: 'Fetched users',
+          users: users,
+          totalCount: totalCount,
+        })
+      }
+    )
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - findAll - UsersController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
 }
 
 const findOne = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.user_id,
+    })
+
+    if (!user) {
+      res.status(400).json({
+        message: 'User not found.',
+      })
+      return
+    }
+    res.status(200).json({
+      message: 'Fetched user',
+      user,
+    })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - findOne - UsersController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
+}
+
+// get user data
+const getUserData = async (req, res) => {
   try {
     const user = await User.findOne({
       email: req.currentUser.email,
     })
 
     if (!user) {
-      return
       res.status(400).json({
         message: 'User not found.',
       })
+      return
     }
     res.status(200).json({
       message: 'Fetched user',
@@ -79,7 +163,7 @@ const findOne = async (req, res) => {
     console.log('step')
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - UsersController')
+    console.log('Catch - getUserData - UsersController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -517,6 +601,7 @@ export default {
   registerCombined,
   uploadProfilePicture,
   // verifyEmail,
+  getUserData,
   getDeveloperTitle,
   getUserRegisteredEventIds,
   registerNotificationToken,

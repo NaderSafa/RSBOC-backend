@@ -9,6 +9,7 @@ const userSchema = new Schema({
   full_name: { type: String, required: true },
   nick_name: { type: String },
   phone_number: { type: String },
+  country: { type: String },
   dob: { type: Date },
   phone: { type: String },
   gender: { type: String, enum: ['M', 'F'] },

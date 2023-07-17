@@ -7,13 +7,14 @@ import NotificationsController from './controllers/notifications.js'
 import authenticateUser from '../middlewares/authenticateUser.js'
 import { authorizeUser } from '../middlewares/authorizeUser.js'
 import multer from 'multer'
+import CountryController from './controllers/country_lookup.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
     return (
       express
         .Router()
-        .get(`/`, authenticateUser, authorizeUser('all'), controller.findOne)
+        .get(`/`, authenticateUser, authorizeUser('all'), controller.findAll)
         .get(
           `/:${identifier}`,
           authenticateUser,
@@ -33,6 +34,7 @@ export default (express, passport, adminJs) => {
     express
       .Router()
       .use('/users', getCrudMethods(UsersController, 'user_id'))
+      .use('/country', getCrudMethods(CountryController, 'country_id'))
       .post(
         '/users/upload',
         authenticateUser,
@@ -46,6 +48,12 @@ export default (express, passport, adminJs) => {
       )
       .post('/users/login', UsersController.login)
       .post('/users/register', UsersController.registerCombined)
+      .get(
+        '/getUser',
+        authenticateUser,
+        authorizeUser('all'),
+        UsersController.getUserData
+      )
       // .post('/users/verifyEmail', UsersController.verifyEmail)
       .post(
         '/users/:user_id/registration',
