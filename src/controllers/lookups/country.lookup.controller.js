@@ -1,4 +1,4 @@
-import Country from '../models/country_lookup.model.js'
+import Country from '../../models/lookups/country.lookup.model.js'
 
 import mongodb from 'mongodb'
 
@@ -8,8 +8,8 @@ import {
   signInWithEmailAndPassword,
 } from 'firebase/auth'
 
-import jwtConfig from '../../config/jwtConfig.js'
-import { firebaseApp, storage } from '../../utils/firebaseInitialization.js'
+import jwtConfig from '../../../config/jwtConfig.js'
+import { firebaseApp, storage } from '../../../utils/firebaseInitialization.js'
 import {
   getStorage,
   ref,

@@ -1,17 +1,17 @@
-import ChampionshipDim from '../models/championship_dim.model.js'
+import ChampionshipFact from '../../models/facts/championship.fact.model.js'
 
 import mongodb from 'mongodb'
 
 // Handle index actions
 const findAll = (req, res) => {
-  ChampionshipDim.find({}, {}, (error, cahmpionships) => {
+  ChampionshipFact.find({}, {}, (error, championships) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Fetched Cahmpionships',
-        cahmpionships: cahmpionships,
+        message: 'Fetched Championships',
+        championships,
       })
     }
   })
@@ -19,8 +19,8 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const championship = await ChampionshipDim.findOne({
-      _id: req.params.championship_dim_id,
+    const championship = await ChampionshipFact.findOne({
+      _id: req.params.championship_fact_id,
     })
 
     if (!championship) {
@@ -35,7 +35,7 @@ const findOne = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - championship_dimController')
+    console.log('Catch - findOne - championship_lookupController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -60,7 +60,7 @@ const create = (req, res) => {
   // res.send({
   //   message: 'countries added successfully',
   // })
-  new ChampionshipDim({
+  new ChampionshipFact({
     ...req.body,
   }).save((error, championship) => {
     if (error || !championship) {
@@ -68,8 +68,8 @@ const create = (req, res) => {
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'championship added successfully',
-        championship: championship,
+        message: 'Championship added successfully!',
+        championship,
       })
       console.log('success')
     }

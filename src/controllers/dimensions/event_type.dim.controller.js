@@ -1,17 +1,15 @@
-import ChampionshipFact from '../models/championship_fact.model.js'
-
-import mongodb from 'mongodb'
+import EventType from '../../models/dimensions/event_type.dim.model.js'
 
 // Handle index actions
 const findAll = (req, res) => {
-  ChampionshipFact.find({}, {}, (error, championships) => {
+  EventType.find({}, {}, (error, eventTypes) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Fetched Championships',
-        championships,
+        message: 'Fetched Event Types',
+        eventTypes,
       })
     }
   })
@@ -19,23 +17,23 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const championship = await ChampionshipFact.findOne({
-      _id: req.params.championship_fact_id,
+    const eventType = await EventType.findOne({
+      _id: req.params.event_type_id,
     })
 
-    if (!championship) {
+    if (!eventType) {
       res.status(400).json({
-        message: 'championship not found.',
+        message: 'eventType not found.',
       })
       return
     }
     res.status(200).json({
-      message: 'Fetched Championship',
-      championship,
+      message: 'Fetched Event Type',
+      eventType,
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - championship_lookupController')
+    console.log('Catch - findOne - eventType_dimController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -44,32 +42,39 @@ const findOne = async (req, res) => {
 }
 
 const create = (req, res) => {
-  // req.body.forEach((i) => {
-  //   new Country({
-  //     ...i,
-  //   }).save((error, country) => {
-  //     if (error || !country) {
-  //       console.log(error)
-  //       res.status(500).send(error)
-  //     } else {
-  //       console.log('success')
-  //     }
-  //   })
-  // })
+  let code
+  if (req.body.time_based === false) {
+    code = 'M'
+    switch (req.body.head) {
+      case 'singles':
+        code += 'S1-'
+        break
+      case 'doubles':
+        code += 'D2-'
+        break
+      case 'singles teams':
+        code += 'T4-'
+        break
 
-  // res.send({
-  //   message: 'countries added successfully',
-  // })
-  new ChampionshipFact({
+      default:
+        break
+    }
+  }
+  code += req.body.best_of.toString()
+  code += req.body.points_per_set.toString().padStart(2, '0')
+  code += req.body.tie_breaks.toString() + '-'
+
+  console.log(code)
+  new EventType({
     ...req.body,
-  }).save((error, championship) => {
-    if (error || !championship) {
+  }).save((error, eventType) => {
+    if (error || !eventType) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Championship added successfully!',
-        championship,
+        message: 'event type added successfully!',
+        eventType,
       })
       console.log('success')
     }

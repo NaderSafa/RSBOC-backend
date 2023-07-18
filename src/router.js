@@ -1,16 +1,16 @@
-import UsersController from './controllers/users.js'
-import ChampionshipDimController from './controllers/championship_dim.controller.js'
-import ChampionshipFactController from './controllers/championship_fact.controller.js'
+import UsersController from './controllers/dimensions/user.dim.controller.js'
+import ChampionshipDimController from './controllers/dimensions/championship.dim.controller.js'
+import ChampionshipFactController from './controllers/facts/championship.fact.controller.js'
 import RegistrationsController from './controllers/registrations.js'
 import ResultsController from './controllers/results.js'
 import NotificationsController from './controllers/notifications.js'
 import authenticateUser from './middlewares/authenticateUser.js'
 import authorizeUser from './middlewares/authorizeUser.js'
 import multer from 'multer'
-import CountryController from './controllers/country_lookup.controller.js'
-import VenueController from './controllers/venue_lookup.controller.js'
-import EventTypeController from './controllers/event_type_dim.controller.js'
-import EventController from './controllers/event.bridge.controller.js'
+import CountryController from './controllers/lookups/country.lookup.controller.js'
+import VenueController from './controllers/lookups/venue_lookup.controller.js'
+import EventTypeController from './controllers/dimensions/event_type.dim.controller.js'
+import EventController from './controllers/bridges/event.bridge.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {

@@ -1,5 +1,5 @@
 // import Event from "../models/event.js";
-import User from '../models/user.js'
+import User from '../models/dimensions/user.dim.model.js'
 import Registration from '../models/registration.js'
 import mongoose from 'mongoose'
 import fs from 'fs'

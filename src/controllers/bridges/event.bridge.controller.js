@@ -1,4 +1,4 @@
-import Event from '../models/event.bridge.model.js'
+import Event from '../../models/bridges/event.bridge.model.js'
 
 // Handle index actions
 const findAll = (req, res) => {

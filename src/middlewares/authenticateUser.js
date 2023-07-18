@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import jwtConfig from '../../config/jwtConfig.js'
 
 // Import models
-import User from '../models/user.js'
+import User from '../models/dimensions/user.dim.model.js'
 
 // Import Firebase apps
 import { firebaseAdminApp } from '../../utils/firebaseInitialization.js'

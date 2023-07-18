@@ -1,42 +1,42 @@
-import { Expo } from "expo-server-sdk";
-import * as nodemailer from "nodemailer";
-import User from "../models/user.js";
-import fs from "fs";
-import registration from "../models/registration.js";
+import { Expo } from 'expo-server-sdk'
+import * as nodemailer from 'nodemailer'
+import User from '../models/dimensions/user.dim.model.js'
+import fs from 'fs'
+import registration from '../models/registration.js'
 
 var transporter = nodemailer.createTransport({
-  service: "hotmail",
+  service: 'hotmail',
   auth: {
-    user: "michael.luka@hotmail.com",
-    pass: "mlhag@Jesus96#",
+    user: 'michael.luka@hotmail.com',
+    pass: 'mlhag@Jesus96#',
   },
-});
+})
 
 var mailOptions = {
-  from: "michael.luka@hotmail.com",
-  to: "michaelgaras96@gmail.com",
-  subject: "Sending Email using Node.js",
-  text: "That was easy!",
-};
+  from: 'michael.luka@hotmail.com',
+  to: 'michaelgaras96@gmail.com',
+  subject: 'Sending Email using Node.js',
+  text: 'That was easy!',
+}
 
 const registerToken = (req, res) => {
-  console.log(req);
-  mailOptions.text = `A user with this expo push token logged in to your app: ${req.query.token}`;
+  console.log(req)
+  mailOptions.text = `A user with this expo push token logged in to your app: ${req.query.token}`
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
-      console.log(error);
+      console.log(error)
     } else {
-      console.log("Email sent: " + info.response);
+      console.log('Email sent: ' + info.response)
     }
-  });
-};
+  })
+}
 
 // Create a new Expo SDK client
 // optionally providing an access token if you have enabled push security
-let expo = new Expo();
+let expo = new Expo()
 // Create the messages that you want to send to clients
-var messages = [];
-var somePushTokens = [];
+var messages = []
+var somePushTokens = []
 
 // const getUserTokens = async () => {
 
@@ -47,61 +47,61 @@ var somePushTokens = [];
 // recommend you batch your notifications to reduce the number of requests
 // and to compress them (notifications with similar content will get
 // compressed).
-let tickets = [];
+let tickets = []
 const sendNotifications = (req, res) => {
-  console.log(req.body);
+  console.log(req.body)
   User.find({}, async (err, users) => {
     users.map((user) => {
       if (user.notificationToken) {
         // console.log("adding ", user.notificationToken);
         somePushTokens.indexOf(user.notificationToken) === -1
           ? somePushTokens.push(user.notificationToken)
-          : null;
+          : null
       }
-    });
+    })
     for (let pushToken of somePushTokens) {
       // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
 
       // Check that all your push tokens appear to be valid Expo push tokens
       if (!Expo.isExpoPushToken(pushToken)) {
-        console.error(`Push token ${pushToken} is not a valid Expo push token`);
-        continue;
+        console.error(`Push token ${pushToken} is not a valid Expo push token`)
+        continue
       }
 
       // Construct a message (see https://docs.expo.io/push-notifications/sending-notifications/)
       messages.push({
         to: pushToken,
-        sound: "default",
+        sound: 'default',
         body: req.body.notificationMessage,
         title: req.body.notificationTitle,
-        data: { withSome: "data" },
-      });
+        data: { withSome: 'data' },
+      })
     }
-    let chunks = expo.chunkPushNotifications(messages);
+    let chunks = expo.chunkPushNotifications(messages)
 
     // Send the chunks to the Expo push notification service. There are
     // different strategies you could use. A simple one is to send one chunk at a
     // time, which nicely spreads the load out over time:
     for (let chunk of chunks) {
       try {
-        let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-        console.log(ticketChunk);
-        tickets.push(...ticketChunk);
+        let ticketChunk = await expo.sendPushNotificationsAsync(chunk)
+        console.log(ticketChunk)
+        tickets.push(...ticketChunk)
         res.send({
-          message: "Notification delivered successfully",
-        });
+          message: 'Notification delivered successfully',
+        })
         // NOTE: If a ticket contains an error code in ticket.details.error, you
         // must handle it appropriately. The error codes are listed in the Expo
         // documentation:
         // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
     }
-    messages = [];
-    somePushTokens = [];
-  });
-};
+    messages = []
+    somePushTokens = []
+  })
+}
 
 // Later, after the Expo push notification service has delivered the
 // notifications to Apple or Google (usually quickly, but allow the the service
@@ -118,49 +118,47 @@ const sendNotifications = (req, res) => {
 // notifications to devices that have blocked notifications or have uninstalled
 // your app. Expo does not control this policy and sends back the feedback from
 // Apple and Google so you can handle it appropriately.
-let receiptIds = ["adb1268b-394d-48a1-a236-89f6fa2a8cbf"];
+let receiptIds = ['adb1268b-394d-48a1-a236-89f6fa2a8cbf']
 for (let ticket of tickets) {
   // NOTE: Not all tickets have IDs; for example, tickets for notifications
   // that could not be enqueued will have error information and no receipt ID.
   if (ticket.id) {
-    receiptIds.push(ticket.id);
+    receiptIds.push(ticket.id)
   }
 }
 
-let receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
-(async () => {
+let receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds)
+;(async () => {
   // Like sending notifications, there are different strategies you could use
   // to retrieve batches of receipts from the Expo service.
   for (let chunk of receiptIdChunks) {
     try {
-      let receipts = await expo.getPushNotificationReceiptsAsync(chunk);
+      let receipts = await expo.getPushNotificationReceiptsAsync(chunk)
 
       // The receipts specify whether Apple or Google successfully received the
       // notification and information about an error, if one occurred.
       for (let receiptId in receipts) {
-        let { status, message, details } = receipts[receiptId];
-        if (status === "ok") {
-          continue;
-        } else if (status === "error") {
-          console.error(
-            `There was an error sending a notification: ${message}`
-          );
+        let { status, message, details } = receipts[receiptId]
+        if (status === 'ok') {
+          continue
+        } else if (status === 'error') {
+          console.error(`There was an error sending a notification: ${message}`)
           if (details && details.error) {
             // The error codes are listed in the Expo documentation:
             // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
             // You must handle the errors appropriately.
-            console.error(`The error code is ${details.error}`);
+            console.error(`The error code is ${details.error}`)
           }
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
   }
-})();
+})()
 
 const renderNotificationHTML = (req, res) => {
-  console.log("here");
+  console.log('here')
   // res.writeHead(200, {
   //   "Content-Type": "text/html",
   // });
@@ -179,15 +177,15 @@ const renderNotificationHTML = (req, res) => {
   // );
   User.find({}, (err, users) => {
     registration.find({}, (err, registrations) => {
-      res.render("notificationManager", {
+      res.render('notificationManager', {
         users: users,
         registrations: registrations,
         attendees: registrations.filter(
           (registration) => registration.attendance == true
         ),
-      });
-    });
-  });
-};
+      })
+    })
+  })
+}
 
-export default { sendNotifications, registerToken, renderNotificationHTML };
+export default { sendNotifications, registerToken, renderNotificationHTML }

@@ -1,17 +1,17 @@
-import VenueLookup from '../models/venue_lookup.model.js'
+import ChampionshipDim from '../../models/dimensions/championship.dim.model.js'
 
 import mongodb from 'mongodb'
 
 // Handle index actions
 const findAll = (req, res) => {
-  VenueLookup.find({}, {}, (error, venues) => {
+  ChampionshipDim.find({}, {}, (error, cahmpionships) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Fetched Venues',
-        venues,
+        message: 'Fetched Cahmpionships',
+        cahmpionships: cahmpionships,
       })
     }
   })
@@ -19,23 +19,23 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const venue = await VenueLookup.findOne({
-      _id: req.params.venue_id,
+    const championship = await ChampionshipDim.findOne({
+      _id: req.params.championship_dim_id,
     })
 
-    if (!venue) {
+    if (!championship) {
       res.status(400).json({
-        message: 'venue not found.',
+        message: 'championship not found.',
       })
       return
     }
     res.status(200).json({
-      message: 'Fetched Venue',
-      venue,
+      message: 'Fetched Championship',
+      championship,
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - venue_lookupController')
+    console.log('Catch - findOne - championship_dimController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -60,16 +60,16 @@ const create = (req, res) => {
   // res.send({
   //   message: 'countries added successfully',
   // })
-  new VenueLookup({
+  new ChampionshipDim({
     ...req.body,
-  }).save((error, venue) => {
-    if (error || !venue) {
+  }).save((error, championship) => {
+    if (error || !championship) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Venue added successfully!',
-        venue,
+        message: 'championship added successfully',
+        championship: championship,
       })
       console.log('success')
     }

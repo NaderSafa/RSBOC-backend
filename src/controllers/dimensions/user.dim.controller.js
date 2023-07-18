@@ -1,6 +1,6 @@
-import User from '../models/user.js'
-import Developer from '../models/developer.js'
-import Attachment from '../models/attachment.js'
+import User from '../../models/dimensions/user.dim.model.js'
+import Developer from '../../models/developer.js'
+import Attachment from '../../models/attachment.js'
 import jwt from 'jsonwebtoken'
 import mongodb from 'mongodb'
 import multer from 'multer'
@@ -11,8 +11,8 @@ import {
   signInWithEmailAndPassword,
 } from 'firebase/auth'
 
-import jwtConfig from '../../config/jwtConfig.js'
-import { firebaseApp, storage } from '../../utils/firebaseInitialization.js'
+import jwtConfig from '../../../config/jwtConfig.js'
+import { firebaseApp, storage } from '../../../utils/firebaseInitialization.js'
 import {
   getStorage,
   ref,

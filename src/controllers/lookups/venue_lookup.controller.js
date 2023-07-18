@@ -1,15 +1,17 @@
-import EventType from '../models/event_type_dim.model.js'
+import VenueLookup from '../../models/lookups/venue_lookup.model.js'
+
+import mongodb from 'mongodb'
 
 // Handle index actions
 const findAll = (req, res) => {
-  EventType.find({}, {}, (error, eventTypes) => {
+  VenueLookup.find({}, {}, (error, venues) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Fetched Event Types',
-        eventTypes,
+        message: 'Fetched Venues',
+        venues,
       })
     }
   })
@@ -17,23 +19,23 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const eventType = await EventType.findOne({
-      _id: req.params.event_type_id,
+    const venue = await VenueLookup.findOne({
+      _id: req.params.venue_id,
     })
 
-    if (!eventType) {
+    if (!venue) {
       res.status(400).json({
-        message: 'eventType not found.',
+        message: 'venue not found.',
       })
       return
     }
     res.status(200).json({
-      message: 'Fetched Event Type',
-      eventType,
+      message: 'Fetched Venue',
+      venue,
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - eventType_dimController')
+    console.log('Catch - findOne - venue_lookupController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -42,39 +44,32 @@ const findOne = async (req, res) => {
 }
 
 const create = (req, res) => {
-  let code
-  if (req.body.time_based === false) {
-    code = 'M'
-    switch (req.body.head) {
-      case 'singles':
-        code += 'S1-'
-        break
-      case 'doubles':
-        code += 'D2-'
-        break
-      case 'singles teams':
-        code += 'T4-'
-        break
+  // req.body.forEach((i) => {
+  //   new Country({
+  //     ...i,
+  //   }).save((error, country) => {
+  //     if (error || !country) {
+  //       console.log(error)
+  //       res.status(500).send(error)
+  //     } else {
+  //       console.log('success')
+  //     }
+  //   })
+  // })
 
-      default:
-        break
-    }
-  }
-  code += req.body.best_of.toString()
-  code += req.body.points_per_set.toString().padStart(2, '0')
-  code += req.body.tie_breaks.toString() + '-'
-
-  console.log(code)
-  new EventType({
+  // res.send({
+  //   message: 'countries added successfully',
+  // })
+  new VenueLookup({
     ...req.body,
-  }).save((error, eventType) => {
-    if (error || !eventType) {
+  }).save((error, venue) => {
+    if (error || !venue) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'event type added successfully!',
-        eventType,
+        message: 'Venue added successfully!',
+        venue,
       })
       console.log('success')
     }
