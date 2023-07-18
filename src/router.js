@@ -1,5 +1,6 @@
 import UsersController from './controllers/users.js'
 import ChampionshipDimController from './controllers/championship_dim.controller.js'
+import ChampionshipFactController from './controllers/championship_fact.controller.js'
 import DevelopersController from './controllers/developers.js'
 import RegistrationsController from './controllers/registrations.js'
 import EventsController from './controllers/events.js'
@@ -9,6 +10,7 @@ import authenticateUser from './middlewares/authenticateUser.js'
 import authorizeUser from './middlewares/authorizeUser.js'
 import multer from 'multer'
 import CountryController from './controllers/country_lookup.controller.js'
+import VenueController from './controllers/venue_lookup.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
@@ -40,6 +42,11 @@ export default (express, passport, adminJs) => {
         '/championship_dim',
         getCrudMethods(ChampionshipDimController, 'championship_dim_id')
       )
+      .use(
+        '/championship_fact',
+        getCrudMethods(ChampionshipFactController, 'championship_fact_id')
+      )
+      .use('/venue', getCrudMethods(VenueController, 'venue_id'))
       .post(
         '/users/upload',
         authenticateUser,

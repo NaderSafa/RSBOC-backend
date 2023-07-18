@@ -17,8 +17,8 @@ const userSchema = new Schema({
   profile_picture_url: { type: String },
   club_id: { type: mongoose.Types.ObjectId },
   preferred_hand: { type: String, enum: ['R', 'L'] },
-  weight: { type: Number, min: 140, max: 240 },
-  height: { type: Number, min: 140, max: 240 },
+  weight: { type: Number },
+  height: { type: Number },
   verified: { type: Boolean, default: false },
   approved: { type: Boolean, default: false },
 })
