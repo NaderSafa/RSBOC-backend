@@ -426,12 +426,12 @@ const create = (req, res) => {
 }
 // Handle update user info
 const update = async (req, res) => {
-  if (!req.body?.full_name && !req.body?.profile_picture_url) {
-    res.status(400).json({
-      message: 'Full Name is a required field',
-    })
-    return
-  }
+  // if (!req.body?.full_name && !req.body?.profile_picture_url) {
+  //   res.status(400).json({
+  //     message: 'Full Name is a required field',
+  //   })
+  //   return
+  // }
   if (req.body?._id || req.body?.email || req.body?.uid) {
     res.status(400).json({
       message: 'These fields can not be updated',

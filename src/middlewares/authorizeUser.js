@@ -1,5 +1,5 @@
 // Authorize user for specific action
-export const authorizeUser = (role) => {
+const authorizeUser = (role) => {
   return (req, res, next) => {
     try {
       if (Array.isArray(role) && role.includes(req.currentUser.role))
@@ -20,3 +20,5 @@ export const authorizeUser = (role) => {
     }
   }
 }
+
+export default authorizeUser

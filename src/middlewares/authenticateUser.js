@@ -2,13 +2,13 @@
 import jwt from 'jsonwebtoken'
 
 // Import JWT config
-import jwtConfig from '../config/jwtConfig.js'
+import jwtConfig from '../../config/jwtConfig.js'
 
 // Import models
-import User from '../src/models/user.js'
+import User from '../models/user.js'
 
 // Import Firebase apps
-import { firebaseAdminApp } from '../utils/firebaseInitialization.js'
+import { firebaseAdminApp } from '../../utils/firebaseInitialization.js'
 
 // Authenticate users by JWT & Firebase
 const authenticateUser = async (req, res, next) => {

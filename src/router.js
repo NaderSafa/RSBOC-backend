@@ -1,11 +1,12 @@
 import UsersController from './controllers/users.js'
+import ChampionshipDimController from './controllers/championship_dim.controller.js'
 import DevelopersController from './controllers/developers.js'
 import RegistrationsController from './controllers/registrations.js'
 import EventsController from './controllers/events.js'
 import ResultsController from './controllers/results.js'
 import NotificationsController from './controllers/notifications.js'
-import authenticateUser from '../middlewares/authenticateUser.js'
-import { authorizeUser } from '../middlewares/authorizeUser.js'
+import authenticateUser from './middlewares/authenticateUser.js'
+import authorizeUser from './middlewares/authorizeUser.js'
 import multer from 'multer'
 import CountryController from './controllers/country_lookup.controller.js'
 
@@ -35,6 +36,10 @@ export default (express, passport, adminJs) => {
       .Router()
       .use('/users', getCrudMethods(UsersController, 'user_id'))
       .use('/country', getCrudMethods(CountryController, 'country_id'))
+      .use(
+        '/championship_dim',
+        getCrudMethods(ChampionshipDimController, 'championship_dim_id')
+      )
       .post(
         '/users/upload',
         authenticateUser,
