@@ -1,14 +1,11 @@
-import mongoose from "mongoose";
-import { eventSchema } from "./event.js";
-import { developerSchema } from "./developer.js";
-import { userSchema } from "./user.js";
+import mongoose from 'mongoose'
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 
 const registrationSchema = new Schema({
-  event: {
-    type: eventSchema,
-  },
+  // event: {
+  //   type: eventSchema,
+  // },
   user: {
     fullName: {
       type: String,
@@ -59,7 +56,7 @@ const registrationSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-});
+})
 
-export { registrationSchema };
-export default mongoose.model("Registration", registrationSchema);
+export { registrationSchema }
+export default mongoose.model('Registration', registrationSchema)

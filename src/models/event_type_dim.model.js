@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 
 const eventTypeSchema = new Schema({
   // general info
-  name: { type: String, required: true },
+  code: { type: String, required: true },
   time_based: { type: Boolean, required: true },
   head: {
     type: String,

@@ -1,15 +1,15 @@
-import EventType from '../models/event_type_dim.model.js'
+import Event from '../models/event.bridge.model.js'
 
 // Handle index actions
 const findAll = (req, res) => {
-  EventType.find({}, {}, (error, eventTypes) => {
+  Event.find({}, {}, (error, events) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Fetched Event Types',
-        eventTypes,
+        message: 'Fetched Events',
+        events,
       })
     }
   })
@@ -17,23 +17,23 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const eventType = await EventType.findOne({
-      _id: req.params.event_type_id,
+    const event = await Event.findOne({
+      _id: req.params.event_id,
     })
 
-    if (!eventType) {
+    if (!event) {
       res.status(400).json({
-        message: 'eventType not found.',
+        message: 'Event not found.',
       })
       return
     }
     res.status(200).json({
-      message: 'Fetched Event Type',
-      eventType,
+      message: 'Fetched Event',
+      event,
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - eventType_dimController')
+    console.log('Catch - findOne - EventBridgeController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -42,39 +42,16 @@ const findOne = async (req, res) => {
 }
 
 const create = (req, res) => {
-  let code
-  if (req.body.time_based === false) {
-    code = 'M'
-    switch (req.body.head) {
-      case 'singles':
-        code += 'S1-'
-        break
-      case 'doubles':
-        code += 'D2-'
-        break
-      case 'singles teams':
-        code += 'T4-'
-        break
-
-      default:
-        break
-    }
-  }
-  code += req.body.best_of.toString()
-  code += req.body.points_per_set.toString().padStart(2, '0')
-  code += req.body.tie_breaks.toString() + '-'
-
-  console.log(code)
-  new EventType({
+  new Event({
     ...req.body,
-  }).save((error, eventType) => {
-    if (error || !eventType) {
+  }).save((error, event) => {
+    if (error || !event) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'event type added successfully!',
-        eventType,
+        message: 'event added successfully!',
+        event,
       })
       console.log('success')
     }

@@ -1,9 +1,7 @@
 import UsersController from './controllers/users.js'
 import ChampionshipDimController from './controllers/championship_dim.controller.js'
 import ChampionshipFactController from './controllers/championship_fact.controller.js'
-import DevelopersController from './controllers/developers.js'
 import RegistrationsController from './controllers/registrations.js'
-import EventsController from './controllers/events.js'
 import ResultsController from './controllers/results.js'
 import NotificationsController from './controllers/notifications.js'
 import authenticateUser from './middlewares/authenticateUser.js'
@@ -12,6 +10,7 @@ import multer from 'multer'
 import CountryController from './controllers/country_lookup.controller.js'
 import VenueController from './controllers/venue_lookup.controller.js'
 import EventTypeController from './controllers/event_type_dim.controller.js'
+import EventController from './controllers/event.bridge.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
@@ -49,6 +48,7 @@ export default (express, passport, adminJs) => {
       )
       .use('/venue', getCrudMethods(VenueController, 'venue_id'))
       .use('/event_type', getCrudMethods(EventTypeController, 'event_type_id'))
+      .use('/event', getCrudMethods(EventController, 'event_id'))
       .post(
         '/users/upload',
         authenticateUser,
@@ -77,16 +77,12 @@ export default (express, passport, adminJs) => {
         '/users/:user_id/registrations',
         RegistrationsController.getUserRegistrations
       )
-      .get('/events', EventsController.findAll)
-      .patch('/events/:event_id', EventsController.incrementTotalScanned)
       .post(
         '/users/:user_id/notifications',
         UsersController.registerNotificationToken
       )
-      .get('/users/:user_id/admin/event', EventsController.getAdminEvent)
       .get('/users/:user_id/events', UsersController.getUserRegisteredEventIds)
       .get('/users/:user_id/developer', UsersController.getDeveloperTitle)
-      .get('/developers', DevelopersController.findAll)
       .get('/results', ResultsController.renderResults)
       .get('/notifications', NotificationsController.renderNotificationHTML)
       .post('/notifications', NotificationsController.sendNotifications)
