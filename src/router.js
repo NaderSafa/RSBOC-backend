@@ -11,6 +11,7 @@ import authorizeUser from './middlewares/authorizeUser.js'
 import multer from 'multer'
 import CountryController from './controllers/country_lookup.controller.js'
 import VenueController from './controllers/venue_lookup.controller.js'
+import EventTypeController from './controllers/event_type_dim.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
@@ -47,6 +48,7 @@ export default (express, passport, adminJs) => {
         getCrudMethods(ChampionshipFactController, 'championship_fact_id')
       )
       .use('/venue', getCrudMethods(VenueController, 'venue_id'))
+      .use('/event_type', getCrudMethods(EventTypeController, 'event_type_id'))
       .post(
         '/users/upload',
         authenticateUser,
