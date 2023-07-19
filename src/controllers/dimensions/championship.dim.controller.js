@@ -1,10 +1,10 @@
-import ChampionshipDim from '../../models/dimensions/championship.dim.model.js'
+import Championship from '../../models/dimensions/championship.dim.model.js'
 
 import mongodb from 'mongodb'
 
 // Handle index actions
 const findAll = (req, res) => {
-  ChampionshipDim.find({}, {}, (error, cahmpionships) => {
+  Championship.find({}, {}, (error, cahmpionships) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
@@ -19,8 +19,8 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const championship = await ChampionshipDim.findOne({
-      _id: req.params.championship_dim_id,
+    const championship = await Championship.findOne({
+      _id: req.params.championship_id,
     })
 
     if (!championship) {
@@ -60,7 +60,7 @@ const create = (req, res) => {
   // res.send({
   //   message: 'countries added successfully',
   // })
-  new ChampionshipDim({
+  new Championship({
     ...req.body,
   }).save((error, championship) => {
     if (error || !championship) {

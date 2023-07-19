@@ -3,12 +3,12 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const eventBridgeSchema = new Schema({
-  championship: {
+  tournament_id: {
     type: Schema.ObjectId,
-    ref: 'ChampionshipFact',
+    ref: 'Tournament',
     required: true,
   },
-  event_type: {
+  event_type_id: {
     type: Schema.ObjectId,
     ref: 'EventType',
     required: true,
@@ -20,6 +20,8 @@ const eventBridgeSchema = new Schema({
   registration_start_date: { type: Date },
   registration_end_date: { type: Date },
   dates: [{ type: Date, default: [] }],
+  createdAt: { type: Date, immutable: true, default: () => Date.now() },
+  updatedAt: { type: Date, default: () => Date.now() },
 })
 
 export { eventBridgeSchema }

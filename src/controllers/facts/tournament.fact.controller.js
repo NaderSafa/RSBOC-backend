@@ -1,17 +1,17 @@
-import ChampionshipFact from '../../models/facts/championship.fact.model.js'
+import Tournament from '../../models/facts/tournament.fact.model.js'
 
 import mongodb from 'mongodb'
 
 // Handle index actions
 const findAll = (req, res) => {
-  ChampionshipFact.find({}, {}, (error, championships) => {
+  Tournament.find({}, {}, (error, tournaments) => {
     if (error) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Fetched Championships',
-        championships,
+        message: 'Fetched Tournaments',
+        tournaments,
       })
     }
   })
@@ -19,23 +19,23 @@ const findAll = (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    const championship = await ChampionshipFact.findOne({
-      _id: req.params.championship_fact_id,
+    const tournament = await Tournament.findOne({
+      _id: req.params.tournament_id,
     })
 
-    if (!championship) {
+    if (!tournament) {
       res.status(400).json({
-        message: 'championship not found.',
+        message: 'tournament not found.',
       })
       return
     }
     res.status(200).json({
-      message: 'Fetched Championship',
-      championship,
+      message: 'Fetched Tournament',
+      tournament,
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - championship_lookupController')
+    console.log('Catch - findOne - Tournament Controller')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -60,16 +60,16 @@ const create = (req, res) => {
   // res.send({
   //   message: 'countries added successfully',
   // })
-  new ChampionshipFact({
+  new Tournament({
     ...req.body,
-  }).save((error, championship) => {
-    if (error || !championship) {
+  }).save((error, tournament) => {
+    if (error || !tournament) {
       console.log(error)
       res.status(500).send(error)
     } else {
       res.send({
-        message: 'Championship added successfully!',
-        championship,
+        message: 'Tournament added successfully!',
+        tournament,
       })
       console.log('success')
     }

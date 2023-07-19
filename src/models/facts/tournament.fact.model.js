@@ -2,10 +2,10 @@ import mongoose from 'mongoose'
 
 const Schema = mongoose.Schema
 
-const championshipFactSchema = new Schema({
-  parent: {
+const tournamentSchema = new Schema({
+  championship_id: {
     type: Schema.ObjectId,
-    ref: 'ChampionshipDim',
+    ref: 'Championship',
   },
   full_name: { type: String, unique: true },
   short_name: { type: String, unique: true },
@@ -17,7 +17,9 @@ const championshipFactSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'VenueLookup',
   },
+  createdAt: { type: Date, immutable: true, default: () => Date.now() },
+  updatedAt: { type: Date, default: () => Date.now() },
 })
 
-export { championshipFactSchema }
-export default mongoose.model('ChampionshipFact', championshipFactSchema)
+export { tournamentSchema }
+export default mongoose.model('Tournament', tournamentSchema)

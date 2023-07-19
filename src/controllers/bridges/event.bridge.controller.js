@@ -1,5 +1,7 @@
 import Event from '../../models/bridges/event.bridge.model.js'
-
+import Tournament from '../../models/facts/tournament.fact.model.js'
+import Championship from '../../models/dimensions/championship.dim.model.js'
+import EventType from '../../models/dimensions/event_type.dim.model.js'
 // Handle index actions
 const findAll = (req, res) => {
   Event.find({}, {}, (error, events) => {
@@ -27,9 +29,26 @@ const findOne = async (req, res) => {
       })
       return
     }
+
+    const testing = await Event.aggregate([
+      {
+        $lookup: {
+          from: 'tournaments',
+          localField: 'tournament_id',
+          foreignField: '_id',
+          as: 'testt',
+        },
+      },
+    ])
+
+    const x = await Event.findOne({
+      _id: req.params.event_id,
+    }).populate('tournament_id')
+
     res.status(200).json({
       message: 'Fetched Event',
-      event,
+      testing,
+      x,
     })
   } catch (err) {
     console.log(err)
@@ -100,6 +119,41 @@ const destroy = (req, res) => {
       })
     }
   })
+}
+
+const getEventDetails = async (req, res) => {
+  try {
+    const event = await Event.findOne({
+      _id: req.params.event_id,
+    })
+
+    if (!event) {
+      res.status(400).json({
+        message: 'Event not found.',
+      })
+      return
+    }
+
+    const tournament = await Tournament.findById(event.tournament_id)
+
+    const championship = await Championship.findById(tournament.championship_id)
+
+    const eventType = await EventType.findById(event.event_type_id)
+    res.status(200).json({
+      message: 'Fetched Event',
+      event,
+      tournament,
+      championship,
+      eventType,
+    })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - findOne - EventBridgeController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
 }
 
 export default {

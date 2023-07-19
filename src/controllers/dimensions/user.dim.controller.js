@@ -452,11 +452,12 @@ const update = async (req, res) => {
   try {
     await User.updateOne(
       {
-        _id: new mongodb.ObjectID(req.currentUser.id),
+        _id: req.currentUser.id,
       },
       {
         $set: {
           ...req.body,
+          updatedAt: Date.now(),
         },
       }
     )

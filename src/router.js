@@ -1,6 +1,6 @@
 import UsersController from './controllers/dimensions/user.dim.controller.js'
-import ChampionshipDimController from './controllers/dimensions/championship.dim.controller.js'
-import ChampionshipFactController from './controllers/facts/championship.fact.controller.js'
+import ChampionshipController from './controllers/dimensions/championship.dim.controller.js'
+import TournamentController from './controllers/facts/tournament.fact.controller.js'
 import RegistrationsController from './controllers/registrations.js'
 import ResultsController from './controllers/results.js'
 import NotificationsController from './controllers/notifications.js'
@@ -39,13 +39,10 @@ export default (express, passport, adminJs) => {
       .use('/users', getCrudMethods(UsersController, 'user_id'))
       .use('/country', getCrudMethods(CountryController, 'country_id'))
       .use(
-        '/championship_dim',
-        getCrudMethods(ChampionshipDimController, 'championship_dim_id')
+        '/championship',
+        getCrudMethods(ChampionshipController, 'championship_id')
       )
-      .use(
-        '/championship_fact',
-        getCrudMethods(ChampionshipFactController, 'championship_fact_id')
-      )
+      .use('/tournament', getCrudMethods(TournamentController, 'tournament_id'))
       .use('/venue', getCrudMethods(VenueController, 'venue_id'))
       .use('/event_type', getCrudMethods(EventTypeController, 'event_type_id'))
       .use('/event', getCrudMethods(EventController, 'event_id'))
