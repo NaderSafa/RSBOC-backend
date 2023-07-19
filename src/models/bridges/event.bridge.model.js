@@ -19,8 +19,7 @@ const eventBridgeSchema = new Schema({
   age_limit: { type: Number },
   registration_start_date: { type: Date },
   registration_end_date: { type: Date },
-  qualifiers_dates: [{ type: Date, default: [] }],
-  finals_dates: [{ type: Date, default: [] }],
+  dates: [{ type: Date, default: [] }],
 })
 
 export { eventBridgeSchema }
