@@ -3,20 +3,19 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const eventBridgeSchema = new Schema({
-  tournament_id: {
+  tournament: {
     type: Schema.ObjectId,
     ref: 'Tournament',
     required: true,
   },
-  event_type_id: {
+  event_type: {
     type: Schema.ObjectId,
     ref: 'EventType',
     required: true,
   },
-  event_code: { type: String, required: true },
   name: { type: String },
-  gender: { type: String },
-  age_limit: { type: Number },
+  gender: { type: String, enum: ['male', 'female', 'mixed'] },
+  age_limit: { type: Number, max: 99 },
   registration_start_date: { type: Date },
   registration_end_date: { type: Date },
   dates: [{ type: Date, default: [] }],

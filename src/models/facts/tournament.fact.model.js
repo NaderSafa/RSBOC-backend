@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const tournamentSchema = new Schema({
-  championship_id: {
+  championship: {
     type: Schema.ObjectId,
     ref: 'Championship',
   },
