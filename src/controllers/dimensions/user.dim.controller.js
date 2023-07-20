@@ -9,6 +9,7 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendEmailVerification,
 } from 'firebase/auth'
 
 import jwtConfig from '../../../config/jwtConfig.js'
@@ -190,6 +191,14 @@ const registerCombined = async (req, res) => {
         email,
         full_name,
       })
+      sendEmailVerification(auth.currentUser)
+        .then(() => {
+          console.log('Email sent to user for verification')
+        })
+        .catch((e) => {
+          console.log('Error sending verification Email: ' + e)
+          setError(e)
+        })
 
       res.status(200).json({
         message: 'User is created, please update your profile',
@@ -346,6 +355,17 @@ const login = async (req, res) => {
           role: user.role,
           accessToken: await userCredential.user.getIdToken(),
           id: user.id,
+        }
+
+        if (userCredential.user.emailVerified === true) {
+          await User.updateOne(
+            { uid: userCredential.user.uid },
+            {
+              $set: {
+                verified: true,
+              },
+            }
+          )
         }
 
         const userDB = await User.findOne({ uid: userCredential.user.uid })
