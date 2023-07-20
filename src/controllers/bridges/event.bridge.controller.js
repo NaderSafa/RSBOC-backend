@@ -5,10 +5,15 @@ import EventType from '../../models/dimensions/event_type.dim.model.js'
 // Handle index actions
 const findAll = async (req, res) => {
   try {
-    const events = await Event.find().populate({
-      path: 'event_type',
-      select: ['head', 'tournament_format', 'code'],
-    })
+    const events = await Event.find()
+      .populate({
+        path: 'event_type',
+        select: ['head', 'tournament_format'],
+      })
+      .populate({
+        path: 'tournament',
+        select: ['short_name'],
+      })
 
     res.status(200).json({
       message: 'Fetched Events',
