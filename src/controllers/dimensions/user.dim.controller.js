@@ -10,6 +10,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  updateProfile,
+  sendPasswordResetEmail,
 } from 'firebase/auth'
 
 import jwtConfig from '../../../config/jwtConfig.js'
@@ -191,7 +193,21 @@ const registerCombined = async (req, res) => {
         email,
         full_name,
       })
-      sendEmailVerification(auth.currentUser)
+
+      await updateProfile(auth.currentUser, {
+        displayName: full_name,
+      })
+        .then(() => {
+          // Profile updated!
+          console.log('profile updated')
+          // ...
+        })
+        .catch((error) => {
+          // An error occurred
+          console.log(error)
+        })
+
+      await sendEmailVerification(auth.currentUser)
         .then(() => {
           console.log('Email sent to user for verification')
         })
@@ -201,7 +217,7 @@ const registerCombined = async (req, res) => {
         })
 
       res.status(200).json({
-        message: 'User is created, please update your profile',
+        message: 'User created, please verify your email address!',
       })
     })
     .catch((error) => {
@@ -611,6 +627,21 @@ const giveCurrentDateTime = () => {
   return dateTime
 }
 
+const forgotPassword = async (req, res) => {
+  await sendPasswordResetEmail(auth, req.body.email)
+    .then(() => {
+      // Password reset email sent!
+      res.status(200).json({
+        message: 'Password reset email sent, please check your inbox!',
+      })
+    })
+    .catch((error) => {
+      return res.status(400).send(error.message)
+
+      // ..
+    })
+}
+
 export default {
   findAll,
   findOne,
@@ -626,4 +657,5 @@ export default {
   getDeveloperTitle,
   getUserRegisteredEventIds,
   registerNotificationToken,
+  forgotPassword,
 }

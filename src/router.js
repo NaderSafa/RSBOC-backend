@@ -59,6 +59,7 @@ export default (express, passport, adminJs) => {
       )
       .post('/users/login', UsersController.login)
       .post('/users/register', UsersController.registerCombined)
+      .post('/users/forgot-password', UsersController.forgotPassword)
       .get(
         '/getUser',
         authenticateUser,
