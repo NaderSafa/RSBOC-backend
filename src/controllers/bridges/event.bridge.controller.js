@@ -1,7 +1,5 @@
 import Event from '../../models/bridges/event.bridge.model.js'
-import Tournament from '../../models/facts/tournament.fact.model.js'
-import Championship from '../../models/dimensions/championship.dim.model.js'
-import EventType from '../../models/dimensions/event_type.dim.model.js'
+
 // Handle index actions
 const findAll = async (req, res) => {
   try {

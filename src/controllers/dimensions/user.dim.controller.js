@@ -67,6 +67,16 @@ const findAll = (req, res) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const query = {}
+    let projection = {
+      full_name: 1,
+      profile_picture_url: 1,
+      weight: 1,
+      height: 1,
+      preferred_hand: 1,
+      approved: 1,
+      dob: 1,
+      country: 1,
+    }
 
     const userRole = req.currentUser.role
 
@@ -76,25 +86,22 @@ const findAll = (req, res) => {
       query.role = userRole === 'player' ? 'player' : req.query.role
     if (req.query.preferred_hand)
       query.preferred_hand = req.query.preferred_hand
+    if (req.query.gender) query.gender = req.query.gender
+    if (req.query.event_id) {
+      projection = { full_name: 1, profile_picture_url: 1 }
+      query.registered_events = {
+        $nin: req.query.event_id,
+      }
+      query._id = { $ne: req.currentUser.id }
+    }
 
     User.find(
       query,
-      {
-        full_name: 1,
-        profile_picture_url: 1,
-        weight: 1,
-        height: 1,
-        preferred_hand: 1,
-        approved: 1,
-        dob: 1,
-        country: 1,
-      },
+      projection,
       {
         sort: { [req.query.sortByField]: req.query.sortByOrder || 1 },
         limit: limit,
         skip: (page - 1) * limit,
-        // order: [['id', 'DESC']],
-        // attributes: { exclude: ['updatedAt'] },
       },
       async (err, users) => {
         if (err) {

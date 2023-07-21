@@ -20,6 +20,20 @@ const userSchema = new Schema({
   weight: { type: Number, min: 20, max: 200 },
   height: { type: Number, min: 100, max: 300 },
   verified: { type: Boolean, default: false },
+  registrations: [
+    {
+      type: Schema.ObjectId,
+      ref: 'Registration',
+      default: [],
+    },
+  ],
+  registered_events: [
+    {
+      type: Schema.ObjectId,
+      ref: 'Event',
+      default: [],
+    },
+  ],
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },

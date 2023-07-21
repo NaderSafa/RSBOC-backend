@@ -19,6 +19,16 @@ const eventBridgeSchema = new Schema({
   registration_start_date: { type: Date },
   registration_end_date: { type: Date },
   dates: [{ type: Date, default: [] }],
+  requires_registration: { type: Boolean, default: false },
+  fees: { type: Number },
+  currency: { type: String },
+  registrations: [
+    {
+      type: Schema.ObjectId,
+      ref: 'Registration',
+      default: [],
+    },
+  ],
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
 })
