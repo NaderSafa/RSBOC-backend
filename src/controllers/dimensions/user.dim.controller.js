@@ -224,7 +224,7 @@ const registerCombined = async (req, res) => {
         })
 
       res.status(200).json({
-        message: 'User created, please verify your email address!',
+        message: 'User created, please check your email inbox!',
       })
     })
     .catch((error) => {
