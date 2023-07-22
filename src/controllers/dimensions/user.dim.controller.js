@@ -635,18 +635,26 @@ const giveCurrentDateTime = () => {
 }
 
 const forgotPassword = async (req, res) => {
-  await sendPasswordResetEmail(auth, req.body.email)
-    .then(() => {
-      // Password reset email sent!
-      res.status(200).json({
-        message: 'Password reset email sent, please check your inbox!',
-      })
-    })
-    .catch((error) => {
-      return res.status(400).send(error.message)
+  const user = await User.findOne({ email: req.body.email })
 
-      // ..
+  if (user) {
+    await sendPasswordResetEmail(auth, req.body.email)
+      .then(() => {
+        // Password reset email sent!
+        res.status(200).json({
+          message: 'Password reset email sent, please check your inbox!',
+        })
+      })
+      .catch((error) => {
+        console.log(error)
+        return res.status(400).send(error.message)
+        // ..
+      })
+  } else {
+    res.status(404).send({
+      message: 'No user attached to this email',
     })
+  }
 }
 
 export default {
