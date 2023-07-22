@@ -591,10 +591,7 @@ const registerNotificationToken = (req, res) => {
 const uploadProfilePicture = async (req, res) => {
   try {
     const dateTime = giveCurrentDateTime()
-    const storageRef = ref(
-      storage,
-      `uploads/${req.currentUser.id + '       ' + dateTime}`
-    )
+    const storageRef = ref(storage, `players/${req.currentUser.id}`)
 
     // Create file metadata including the content type
     const metadata = {
