@@ -20,6 +20,10 @@ const userSchema = new Schema({
   weight: { type: Number, min: 20, max: 200 },
   height: { type: Number, min: 100, max: 300 },
   verified: { type: Boolean, default: false },
+  club: {
+    type: Schema.ObjectId,
+    ref: 'Club',
+  },
   registrations: [
     {
       type: Schema.ObjectId,

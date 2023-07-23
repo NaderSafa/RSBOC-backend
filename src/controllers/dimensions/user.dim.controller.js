@@ -367,7 +367,7 @@ const login = async (req, res) => {
     const user = await User.findOne({ email: email })
     if (!user) {
       return res.status(404).json({
-        message: 'Either your login email or password is incorrect.',
+        message: 'No user attached to this email.',
       })
     }
 

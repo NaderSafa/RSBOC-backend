@@ -9,6 +9,7 @@ import authenticateUser from './middlewares/authenticateUser.js'
 import authorizeUser from './middlewares/authorizeUser.js'
 import multer from 'multer'
 import CountryController from './controllers/lookups/country.lookup.controller.js'
+import ClubController from './controllers/lookups/club.lookup.controller.js'
 import VenueController from './controllers/lookups/venue_lookup.controller.js'
 import EventTypeController from './controllers/dimensions/event_type.dim.controller.js'
 import EventController from './controllers/bridges/event.bridge.controller.js'
@@ -38,6 +39,7 @@ export default (express, passport, adminJs) => {
     .Router()
     .use('/users', getCrudMethods(UsersController, 'user_id'))
     .use('/country', getCrudMethods(CountryController, 'country_id'))
+    .use('/club', getCrudMethods(ClubController, 'club_id'))
     .use(
       '/championship',
       getCrudMethods(ChampionshipController, 'championship_id')
@@ -49,6 +51,13 @@ export default (express, passport, adminJs) => {
     .use(
       '/registration',
       getCrudMethods(RegistrationController, 'registration_id')
+    )
+    .post(
+      '/registration/upload',
+      authenticateUser,
+      authorizeUser('all'),
+      upload.single('filename'),
+      RegistrationController.uploadRegistrationSS
     )
     .post(
       '/users/upload',

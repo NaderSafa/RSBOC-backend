@@ -300,12 +300,12 @@ const destroy = (req, res) => {
   })
 }
 
-const uploadProfilePicture = async (req, res) => {
+const uploadRegistrationSS = async (req, res) => {
   try {
     const dateTime = giveCurrentDateTime()
     const storageRef = ref(
       storage,
-      `uploads/${req.currentUser.id + '       ' + dateTime}`
+      `registrations/${req.currentUser.id} ${dateTime}`
     )
 
     // Create file metadata including the content type
@@ -352,6 +352,6 @@ export default {
   create,
   update,
   destroy,
-  uploadProfilePicture,
+  uploadRegistrationSS,
   getUserData,
 }
