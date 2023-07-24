@@ -19,6 +19,7 @@ const registrationSchema = new Schema({
   currency: { type: String },
   payment_method: { type: String, enum: ['cash', 'instapay'] },
   payment_image_url: { type: String },
+  preferred_dates: [{ type: Date }],
   group: { type: String },
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
