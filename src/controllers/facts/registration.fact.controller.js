@@ -14,7 +14,7 @@ import {
 const findAll = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 10
+    const limit = parseInt(req.query.limit) || 100
     const query = {}
 
     if (req.query.event) query.event = req.query.event
@@ -28,7 +28,11 @@ const findAll = async (req, res) => {
         limit: limit,
         skip: (page - 1) * limit,
       }
-    ).populate({ path: 'players', select: ['full_name'] })
+    ).populate({
+      path: 'players',
+      select: ['full_name', 'club'],
+      populate: { path: 'club', select: 'image_url' },
+    })
 
     const totalCount = await Registration.countDocuments(query)
 
