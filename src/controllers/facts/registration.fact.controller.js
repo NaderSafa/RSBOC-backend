@@ -11,42 +11,35 @@ import {
 } from 'firebase/storage'
 
 // GET: return all users
-const findAll = (req, res) => {
+const findAll = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const query = {}
 
-    if (req.query.event) query.event = parseInt(req.query.event)
-    if (req.query.approved) query.approved = parseInt(req.query.approved)
+    if (req.query.event) query.event = req.query.event
+    if (req.query.approved) query.approved = req.query.approved
 
-    Registration.find(
+    const registrations = await Registration.find(
       query,
       {},
       {
         sort: { [req.query.sortByField]: req.query.sortByOrder || 1 },
         limit: limit,
         skip: (page - 1) * limit,
-        // order: [['id', 'DESC']],
-        // attributes: { exclude: ['updatedAt'] },
-      },
-      async (err, users) => {
-        if (err) {
-          console.log(err)
-          return
-        }
-        const totalCount = await User.countDocuments(query)
-
-        res.status(200).json({
-          message: 'Fetched users',
-          users: users,
-          totalCount: totalCount,
-        })
       }
-    )
+    ).populate({ path: 'players', select: ['full_name'] })
+
+    const totalCount = await Registration.countDocuments(query)
+
+    res.status(200).json({
+      message: 'Fetched Registrations',
+      registrations: registrations,
+      totalCount: totalCount,
+    })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findAll - UsersController')
+    console.log('Catch - findAll - RegistrationController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -72,7 +65,7 @@ const findOne = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - findOne - UsersController')
+    console.log('Catch - findOne - RegistrationController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -228,7 +221,7 @@ const getUserData = async (req, res) => {
     console.log('step')
   } catch (err) {
     console.log(err)
-    console.log('Catch - getUserData - UsersController')
+    console.log('Catch - getUserData - RegistrationController')
 
     res.status(400).json({
       message: 'Something went wrong.',
@@ -278,7 +271,7 @@ const update = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - update - UsersController')
+    console.log('Catch - update - RegistrationController')
 
     res.status(400).json({
       message: 'Something went wrong.',
