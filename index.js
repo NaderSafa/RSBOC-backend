@@ -31,6 +31,10 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   next()
 })
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://www.speedballhub.com')
+  next()
+})
 // app.set('view engine', 'jade')
 app.use('/api', router(express, passport))
 app.use('/qrcodes', express.static('qrcodes'))
