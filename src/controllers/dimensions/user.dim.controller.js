@@ -131,7 +131,7 @@ const findOne = async (req, res) => {
   try {
     const user = await User.findOne({
       _id: req.params.user_id,
-    })
+    }).populate('club')
 
     if (!user) {
       res.status(400).json({
@@ -158,7 +158,7 @@ const getUserData = async (req, res) => {
   try {
     const user = await User.findOne({
       email: req.currentUser.email,
-    })
+    }).populate('club')
 
     if (!user) {
       res.status(400).json({
@@ -426,6 +426,9 @@ const login = async (req, res) => {
             message = 'Wrong username or password.'
             break
         }
+        return res.status(400).json({
+          message,
+        })
       })
   } catch (err) {
     console.log(err)
