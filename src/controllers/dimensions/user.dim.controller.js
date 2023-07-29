@@ -423,7 +423,7 @@ const login = async (req, res) => {
             message = 'Weak password.'
             break
           case 'auth/wrong-password':
-            message = 'Wrong username or password.'
+            message = 'Wrong password.'
             break
         }
         return res.status(400).json({

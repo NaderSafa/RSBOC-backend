@@ -13,6 +13,12 @@ const eventBridgeSchema = new Schema({
     ref: 'EventType',
     required: true,
   },
+  groups: [
+    {
+      type: Schema.ObjectId,
+      ref: 'Group',
+    },
+  ],
   name: { type: String },
   gender: { type: String, enum: ['male', 'female', 'mixed'] },
   age_limit: { type: Number, max: 99 },

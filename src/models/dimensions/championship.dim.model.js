@@ -7,6 +7,7 @@ const championshipSchema = new Schema({
   short_name: { type: String, unique: true },
   ground: { type: String, default: 'solid' },
   logo_url: { type: String },
+  representative: { type: Schema.ObjectId, ref: 'User' },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
 })

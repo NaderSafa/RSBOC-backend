@@ -15,16 +15,12 @@ const findAll = async (req, res) => {
 
     if (req.query.event) query.event = req.query.event
     if (req.query.approved) query.approved = req.query.approved
-    if (req.query.group) query.group = { $exists: false }
 
     const registrations = await Registration.find(
       query,
       {},
       {
-        sort: {
-          [req.query.sortByField ? req.query.sortByField : 'points']:
-            req.query.sortByOrder || -1,
-        },
+        sort: { [req.query.sortByField]: req.query.sortByOrder || 1 },
         limit: limit,
         skip: (page - 1) * limit,
       }

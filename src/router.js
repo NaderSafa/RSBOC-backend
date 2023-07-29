@@ -13,6 +13,7 @@ import ClubController from './controllers/lookups/club.lookup.controller.js'
 import VenueController from './controllers/lookups/venue_lookup.controller.js'
 import EventTypeController from './controllers/dimensions/event_type.dim.controller.js'
 import EventController from './controllers/bridges/event.bridge.controller.js'
+import GroupController from './controllers/facts/group.fact.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
@@ -52,6 +53,7 @@ export default (express, passport, adminJs) => {
       '/registration',
       getCrudMethods(RegistrationController, 'registration_id')
     )
+    .use('/group', getCrudMethods(GroupController, 'group_id'))
     .post(
       '/registration/upload',
       authenticateUser,
@@ -59,6 +61,7 @@ export default (express, passport, adminJs) => {
       upload.single('filename'),
       RegistrationController.uploadRegistrationSS
     )
+
     .post(
       '/users/upload',
       authenticateUser,
