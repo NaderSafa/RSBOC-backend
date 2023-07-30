@@ -141,27 +141,27 @@ const create = async (req, res) => {
     }
 
     // check if one of the players is already registered to this event
-    await req.body.players.forEach(async (player) => {
-      const user = await User.findOne({ _id: player })
-      console.log(user.registered_events[0].toString() === req.body.event)
-      user.registered_events.forEach(async (event) => {
-        if (event.toString() === req.body.event) {
-          await res.status(400).json({
-            message: `Player is already registered to this event`,
-          })
-          return
-        }
-      })
-      if (user.registered_events.indexOf(req.body.event) !== -1) {
-        console.log('dakhal')
-        await res.status(400).json({
-          message: `Player is already registered to this event`,
-        })
-        return
-      } else {
-        console.log('madakhalsh')
-      }
-    })
+    // await req.body.players.forEach(async (player) => {
+    //   const user = await User.findOne({ _id: player })
+    //   console.log(user.registered_events[0].toString() === req.body.event)
+    //   user.registered_events.forEach(async (event) => {
+    //     if (event.toString() === req.body.event) {
+    //       await res.status(400).json({
+    //         message: `Player is already registered to this event`,
+    //       })
+    //       return
+    //     }
+    //   })
+    //   if (user.registered_events.indexOf(req.body.event) !== -1) {
+    //     console.log('dakhal')
+    //     await res.status(400).json({
+    //       message: `Player is already registered to this event`,
+    //     })
+    //     return
+    //   } else {
+    //     console.log('madakhalsh')
+    //   }
+    // })
 
     // check if one of the players is already registered to this event
     // const registeredPlayers = await Registration.find(
