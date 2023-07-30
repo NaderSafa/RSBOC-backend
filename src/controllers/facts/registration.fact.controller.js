@@ -4,7 +4,6 @@ import Event from '../../models/bridges/event.bridge.model.js'
 
 import { storage } from '../../../utils/firebaseInitialization.js'
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
-import { ObjectId } from 'mongodb'
 
 // GET: return all users
 const findAll = async (req, res) => {
@@ -141,55 +140,24 @@ const create = async (req, res) => {
     }
 
     // check if one of the players is already registered to this event
-    // await req.body.players.forEach(async (player) => {
-    //   const user = await User.findOne({ _id: player })
-    //   console.log(user.registered_events[0].toString() === req.body.event)
-    //   user.registered_events.forEach(async (event) => {
-    //     if (event.toString() === req.body.event) {
-    //       await res.status(400).json({
-    //         message: `Player is already registered to this event`,
-    //       })
-    //       return
-    //     }
-    //   })
-    //   if (user.registered_events.indexOf(req.body.event) !== -1) {
-    //     console.log('dakhal')
-    //     await res.status(400).json({
-    //       message: `Player is already registered to this event`,
-    //     })
-    //     return
-    //   } else {
-    //     console.log('madakhalsh')
-    //   }
-    // })
+    let isPlayerRegistered = false
+    for (const player of req.body.players) {
+      const user = await User.findOne({ _id: player })
 
-    // check if one of the players is already registered to this event
-    // const registeredPlayers = await Registration.find(
-    //   { event: req.body.event },
-    //   { players: 1, _id: 0 }
-    // )
+      for (const objectId of user.registered_events) {
+        if (objectId.toString() === req.body.event[0]) {
+          isPlayerRegistered = true
+          break
+        }
+      }
 
-    // let alreadyRegisteredPlayers = []
-    // let alreadyRegisteredPlayer = {}
-
-    // registeredPlayers.forEach((registration) =>
-    //   registration.players.forEach((player) =>
-    //     alreadyRegisteredPlayers.push(String(player))
-    //   )
-    // )
-
-    // await req.body.players.forEach(async (player) => {
-    //   if (alreadyRegisteredPlayers.indexOf(player) !== -1) {
-    //     alreadyRegisteredPlayer = await User.findOne(
-    //       { _id: player },
-    //       { _id: 0, full_name: 1 }
-    //     )
-    //     res.status(400).json({
-    //       message: `Player ${alreadyRegisteredPlayer.full_name} already registered to this event`,
-    //     })
-    //     return
-    //   }
-    // })
+      if (isPlayerRegistered === true) {
+        res.status(400).send({
+          message: `Player is already registered to this event`,
+        })
+        return
+      }
+    }
 
     new Registration({
       ...req.body,
