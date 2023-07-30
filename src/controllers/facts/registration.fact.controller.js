@@ -145,7 +145,7 @@ const create = async (req, res) => {
       const user = await User.findOne({ _id: player })
 
       for (const objectId of user.registered_events) {
-        if (objectId.toString() === req.body.event[0]) {
+        if (objectId.toString() === req.body.event) {
           isPlayerRegistered = true
           break
         }
