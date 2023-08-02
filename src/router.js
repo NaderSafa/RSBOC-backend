@@ -36,47 +36,61 @@ export default (express, passport, adminJs) => {
 
   const upload = multer({ storage: multer.memoryStorage() })
 
-  return express
-    .Router()
-    .use('/users', getCrudMethods(UsersController, 'user_id'))
-    .use('/country', getCrudMethods(CountryController, 'country_id'))
-    .use('/club', getCrudMethods(ClubController, 'club_id'))
-    .use(
-      '/championship',
-      getCrudMethods(ChampionshipController, 'championship_id')
-    )
-    .use('/tournament', getCrudMethods(TournamentController, 'tournament_id'))
-    .use('/venue', getCrudMethods(VenueController, 'venue_id'))
-    .use('/event_type', getCrudMethods(EventTypeController, 'event_type_id'))
-    .use('/event', getCrudMethods(EventController, 'event_id'))
-    .use(
-      '/registration',
-      getCrudMethods(RegistrationController, 'registration_id')
-    )
-    .use('/group', getCrudMethods(GroupController, 'group_id'))
-    .post(
-      '/registration/upload',
-      authenticateUser,
-      authorizeUser('all'),
-      upload.single('filename'),
-      RegistrationController.uploadRegistrationSS
-    )
+  return (
+    express
+      .Router()
+      .use('/users', getCrudMethods(UsersController, 'user_id'))
+      .use('/country', getCrudMethods(CountryController, 'country_id'))
+      .use('/club', getCrudMethods(ClubController, 'club_id'))
+      .use(
+        '/championship',
+        getCrudMethods(ChampionshipController, 'championship_id')
+      )
+      .use('/tournament', getCrudMethods(TournamentController, 'tournament_id'))
+      .use('/venue', getCrudMethods(VenueController, 'venue_id'))
+      .use('/event_type', getCrudMethods(EventTypeController, 'event_type_id'))
+      .use('/event', getCrudMethods(EventController, 'event_id'))
+      .use(
+        '/registration',
+        getCrudMethods(RegistrationController, 'registration_id')
+      )
+      .use('/group', getCrudMethods(GroupController, 'group_id'))
+      .patch(
+        '/registration/:registration_id',
+        authenticateUser,
+        authorizeUser('championship'),
+        RegistrationController.update
+      )
+      .post(
+        '/registration/upload',
+        authenticateUser,
+        authorizeUser('all'),
+        upload.single('filename'),
+        RegistrationController.uploadRegistrationSS
+      )
 
-    .post(
-      '/users/upload',
-      authenticateUser,
-      authorizeUser('all'),
-      upload.single('filename'),
-      UsersController.uploadProfilePicture
-    )
-    .post('/users/login', UsersController.login)
-    .post('/users/register', UsersController.registerCombined)
-    .post('/users/forgot-password', UsersController.forgotPassword)
-    .get(
-      '/getUser',
-      authenticateUser,
-      authorizeUser('all'),
-      UsersController.getUserData
-    )
+      .post(
+        '/users/upload',
+        authenticateUser,
+        authorizeUser('all'),
+        upload.single('filename'),
+        UsersController.uploadProfilePicture
+      )
+      .post('/users/login', UsersController.login)
+      .post('/users/register', UsersController.registerCombined)
+      .post('/users/forgot-password', UsersController.forgotPassword)
+      // .post(
+      //   '/users/verify',
+      //   authenticateUser,
+      //   authorizeUser('all'),
+      //   UsersController.sendVerificationEmail
+      // )
+      .get(
+        '/getUser',
+        authenticateUser,
+        authorizeUser('all'),
+        UsersController.getUserData
+      )
+  )
   // .get("/notifications/register", NotificationsController.registerToken);
 }

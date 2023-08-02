@@ -226,43 +226,20 @@ const getUserData = async (req, res) => {
 
 // Handle update user info
 const update = async (req, res) => {
-  // if (!req.body?.full_name && !req.body?.profile_picture_url) {
-  //   res.status(400).json({
-  //     message: 'Full Name is a required field',
-  //   })
-  //   return
-  // }
-  if (req.body?._id || req.body?.email || req.body?.uid) {
-    res.status(400).json({
-      message: 'These fields can not be updated',
-    })
-    return
-  }
-  if (req.body?.verified || req.body?.approved || req.body?.role) {
-    res
-      .status(403)
-      .json({ message: "You don't have the authority to change these fields" })
-    return
-  }
-
-  req.body = req.body?.dob
-    ? { ...req.body, dob: new Date(req.body.dob).toISOString() }
-    : req.body
-
   try {
-    await User.updateOne(
+    await Registration.updateOne(
       {
-        _id: req.currentUser.id,
+        _id: req.params.registration_id,
       },
       {
         $set: {
-          ...req.body,
+          points: req.body.points,
           updatedAt: Date.now(),
         },
       }
     )
     res.status(200).json({
-      message: 'User updated successfully!',
+      message: 'Registration updated successfully!',
     })
   } catch (err) {
     console.log(err)
