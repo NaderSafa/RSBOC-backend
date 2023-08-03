@@ -251,18 +251,52 @@ const update = async (req, res) => {
   }
 }
 
-// Handle delete user
-const destroy = (req, res) => {
-  User.remove({ _id: req.params.user_id }, (error) => {
-    if (error) {
-      console.log(error)
-      res.status(500).send(error)
-    } else {
-      res.send({
-        message: 'User deleted successfully',
+// Handle delete registration
+const destroy = async (req, res) => {
+  try {
+    const registration = await Registration.findOne({
+      _id: req.params.registration_id,
+    })
+
+    if (!registration) {
+      res.status(404).send({
+        message: 'Registration not found',
       })
+      return
     }
-  })
+    await Registration.deleteOne({ _id: registration._id })
+    console.log('Registration Deleted')
+
+    for (let i = 0; i < registration.players.length; i++) {
+      await User.updateOne(
+        { _id: registration.players[i] },
+        {
+          $pull: {
+            registered_events: registration.event,
+            registrations: registration._id,
+          },
+        }
+      )
+    }
+    console.log('User Updated')
+
+    await Event.updateOne(
+      { _id: registration.event },
+      { $pull: { registrations: registration._id } }
+    )
+    console.log('Event updated')
+
+    res.status(200).send({
+      message: 'Registration deleted successfully',
+    })
+  } catch (err) {
+    console.log(err)
+    console.log('Catch - destroy - RegistrationController')
+
+    res.status(400).json({
+      message: 'Something went wrong.',
+    })
+  }
 }
 
 const uploadRegistrationSS = async (req, res) => {
