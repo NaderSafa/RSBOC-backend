@@ -26,7 +26,15 @@ const findAll = async (req, res) => {
         limit: limit,
         skip: (page - 1) * limit,
       }
-    )
+    ).populate({
+      path: 'registrations',
+      select: ['players', 'club'],
+      populate: {
+        path: 'players',
+        select: ['full_name', 'club'],
+        populate: { path: 'club', select: 'image_url' },
+      },
+    })
 
     const totalCount = await Group.countDocuments(query)
 
