@@ -14,6 +14,7 @@ import VenueController from './controllers/lookups/venue_lookup.controller.js'
 import EventTypeController from './controllers/dimensions/event_type.dim.controller.js'
 import EventController from './controllers/bridges/event.bridge.controller.js'
 import GroupController from './controllers/facts/group.fact.controller.js'
+import MatchController from './controllers/facts/match.fact.controller.js'
 
 export default (express, passport, adminJs) => {
   const getCrudMethods = (controller, identifier = null) => {
@@ -55,6 +56,7 @@ export default (express, passport, adminJs) => {
         getCrudMethods(RegistrationController, 'registration_id')
       )
       .use('/group', getCrudMethods(GroupController, 'group_id'))
+      .use('/match', getCrudMethods(MatchController, 'match_id'))
       .patch(
         '/registration/:registration_id',
         authenticateUser,

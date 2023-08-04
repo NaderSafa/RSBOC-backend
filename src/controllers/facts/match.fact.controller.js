@@ -1,6 +1,7 @@
 import User from '../../models/dimensions/user.dim.model.js'
 import Registration from '../../models/facts/registration.fact.model.js'
 import Event from '../../models/bridges/event.bridge.model.js'
+import Match from '../../models/facts/match.fact.model.js'
 
 import { storage } from '../../../utils/firebaseInitialization.js'
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
@@ -14,27 +15,52 @@ const findAll = async (req, res) => {
     const query = {}
 
     if (req.query.event) query.event = req.query.event
-    if (req.query.approved) query.approved = req.query.approved
+    if (req.query.group) query.group = req.query.group
+    if (req.query.round) query.round = req.query.round
 
-    const registrations = await Registration.find(
+    const matches = await Match.find(
       query,
       {},
       {
-        sort: { [req.query.sortByField]: req.query.sortByOrder || 1 },
+        sort: {
+          [req.query.sortByField ? req.query.sortByField : 'round']:
+            req.query.sortByOrder || 1,
+        },
         limit: limit,
         skip: (page - 1) * limit,
       }
-    ).populate({
-      path: 'players',
-      select: ['full_name', 'club'],
-      populate: { path: 'club', select: 'image_url' },
-    })
+    ).populate([
+      { path: 'group', select: ['name'] },
+      {
+        path: 'event',
+        select: ['name', 'tournament'],
+        populate: { path: 'tournament', populate: { path: 'championship' } },
+      },
+      {
+        path: 'registration1',
+        select: ['players'],
+        populate: {
+          path: 'players',
+          select: ['full_name', 'club'],
+          populate: { path: 'club', select: 'image_url' },
+        },
+      },
+      {
+        path: 'registration2',
+        select: ['players'],
+        populate: {
+          path: 'players',
+          select: ['full_name', 'club'],
+          populate: { path: 'club', select: 'image_url' },
+        },
+      },
+    ])
 
-    const totalCount = await Registration.countDocuments(query)
+    const totalCount = await Match.countDocuments(query)
 
     res.status(200).json({
-      message: 'Fetched Registrations',
-      registrations: registrations,
+      message: 'Fetched Matches',
+      matches: matches,
       totalCount: totalCount,
     })
   } catch (err) {
