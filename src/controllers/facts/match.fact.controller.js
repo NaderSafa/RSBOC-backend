@@ -34,7 +34,14 @@ const findAll = async (req, res) => {
       {
         path: 'event',
         select: ['name', 'tournament'],
-        populate: { path: 'tournament', populate: { path: 'championship' } },
+        populate: {
+          path: 'tournament',
+          select: ['championship', 'full_name', 'short_name'],
+          populate: {
+            path: 'championship',
+            select: ['logo_url'],
+          },
+        },
       },
       {
         path: 'registration1',
@@ -278,49 +285,86 @@ const getUserData = async (req, res) => {
   }
 }
 
-// Handle update user info
+// Handle update match
 const update = async (req, res) => {
-  // if (!req.body?.full_name && !req.body?.profile_picture_url) {
-  //   res.status(400).json({
-  //     message: 'Full Name is a required field',
-  //   })
-  //   return
-  // }
-  if (req.body?._id || req.body?.email || req.body?.uid) {
-    res.status(400).json({
-      message: 'These fields can not be updated',
-    })
-    return
-  }
-  if (req.body?.verified || req.body?.approved || req.body?.role) {
-    res
-      .status(403)
-      .json({ message: "You don't have the authority to change these fields" })
-    return
-  }
-
-  req.body = req.body?.dob
-    ? { ...req.body, dob: new Date(req.body.dob).toISOString() }
-    : req.body
-
   try {
-    await User.updateOne(
+    const match = await Match.findOne({
+      _id: req.params.match_id,
+    })
+
+    if (!match) {
+      res.status(404).json({
+        message: 'Match not found!',
+      })
+      return
+    }
+
+    if (match.played === true) {
+      res.status(400).json({
+        message: "You can't update the data of already played match",
+      })
+      return
+    }
+
+    await Match.updateOne(
       {
-        _id: req.currentUser.id,
+        _id: req.params.match_id,
       },
       {
         $set: {
-          ...req.body,
+          sets: req.body.sets,
+          played: req.body.played === true && true,
           updatedAt: Date.now(),
         },
       }
     )
+
+    if (req.body.played === true) {
+      const sets = [0, 0]
+
+      for (const set of req.body.sets) {
+        set.registration1_score > set.registration2_score
+          ? (sets[0] = sets[0] + 1)
+          : (sets[1] = sets[1] + 1)
+      }
+
+      await Registration.updateOne(
+        { _id: match.registration1 },
+        {
+          $set: {
+            updatedAt: Date.now(),
+          },
+          $inc: {
+            sets_won: sets[0],
+            sets_lost: sets[1],
+            matches_won: sets[0] > sets[1] ? 1 : 0,
+            matches_lost: sets[0] > sets[1] ? 0 : 1,
+          },
+        }
+      )
+
+      await Registration.updateOne(
+        { _id: match.registration2 },
+        {
+          $set: {
+            updatedAt: Date.now(),
+          },
+          $inc: {
+            sets_won: sets[1],
+            sets_lost: sets[0],
+            matches_won: sets[0] > sets[1] ? 0 : 1,
+            matches_lost: sets[0] > sets[1] ? 1 : 0,
+          },
+        }
+      )
+    }
+
     res.status(200).json({
-      message: 'User updated successfully!',
+      message: 'Match updated successfully!',
     })
   } catch (err) {
     console.log(err)
-    console.log('Catch - update - RegistrationController')
+    console.log('Catch - update - MatchController')
 
     res.status(400).json({
       message: 'Something went wrong.',

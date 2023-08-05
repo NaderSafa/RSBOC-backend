@@ -35,6 +35,8 @@ const eventBridgeSchema = new Schema({
       default: [],
     },
   ],
+  points_per_win: { type: Number },
+  points_per_lose: { type: Number },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
 })

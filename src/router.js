@@ -63,6 +63,12 @@ export default (express, passport, adminJs) => {
         authorizeUser('championship'),
         RegistrationController.update
       )
+      .patch(
+        '/match/:match_id',
+        authenticateUser,
+        authorizeUser('championship'),
+        MatchController.update
+      )
       .post(
         '/registration/upload',
         authenticateUser,

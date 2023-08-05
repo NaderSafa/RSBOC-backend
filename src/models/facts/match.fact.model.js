@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { setSchema } from './set.fact.model.js'
 
 const Schema = mongoose.Schema
 
@@ -25,7 +26,7 @@ const matchSchema = new Schema({
   },
   round: { type: Number },
   winner: { type: Schema.ObjectId, ref: 'Registration' },
-  score: [[{ type: Number }]],
+  sets: [setSchema],
   played: { type: Boolean, default: false },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
