@@ -5,7 +5,6 @@ import Match from '../../models/facts/match.fact.model.js'
 
 import { storage } from '../../../utils/firebaseInitialization.js'
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
-import { ObjectId } from 'mongodb'
 
 // GET: return all users
 const findAll = async (req, res) => {
@@ -31,18 +30,6 @@ const findAll = async (req, res) => {
       }
     ).populate([
       { path: 'group', select: ['name'] },
-      {
-        path: 'event',
-        select: ['name', 'tournament'],
-        populate: {
-          path: 'tournament',
-          select: ['championship', 'full_name', 'short_name'],
-          populate: {
-            path: 'championship',
-            select: ['logo_url'],
-          },
-        },
-      },
       {
         path: 'registration1',
         select: ['players'],
@@ -302,6 +289,7 @@ const update = async (req, res) => {
     if (match.played === true) {
       res.status(400).json({
         message: "You can't update the data of already played match",
+        sets: match.sets,
       })
       return
     }
