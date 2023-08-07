@@ -29,7 +29,9 @@ const findAll = async (req, res) => {
       }
     ).populate({
       path: 'players',
-      select: ['full_name', 'club'],
+      select: ['championship', 'admin'].includes(req.currentUser.role)
+        ? ['full_name', 'club', 'phone_number']
+        : ['full_name', 'club'],
       populate: { path: 'club', select: 'image_url' },
     })
 
