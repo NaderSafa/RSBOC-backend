@@ -1,4 +1,6 @@
 import User from '../../models/dimensions/user.dim.model.js'
+import Match from '../../models/facts/match.fact.model.js'
+import Registration from '../../models/facts/registration.fact.model.js'
 import Developer from '../../models/developer.js'
 import Attachment from '../../models/attachment.js'
 import jwt from 'jsonwebtoken'
@@ -28,38 +30,52 @@ import {
 
 const auth = getAuth(firebaseApp)
 
-// Setting up multer as a middleware to grab photo uploads
-const getDeveloperTitle = (req, res) => {
-  User.findOne({ uid: req.params.user_id }, (error, user) => {
-    if (error) {
-      console.log(error)
-      res.status(500).send(error)
-    } else if (user) {
-      if (user.developerId) {
-        Developer.findById(user.developerId, (error, developer) => {
-          res.send(developer.title)
-        })
-      } else {
-        res.send(404)
-      }
-    } else {
-      res.status(404).send({ message: `User not found` })
-    }
-  })
-}
+// get a players matches
+const getPlayerMatches = async (req, res) => {
+  try {
+    const player = await User.findOne(
+      { _id: req.params.user_id },
+      { registrations: 1 }
+    )
+    let matches = []
 
-// Handle index actions
-// const findAll = (req, res) => {
-//   User.find({ role: 'player' }, (error, users) => {
-//     if (error) {
-//       console.log(error)
-//       res.status(500).send(error)
-//     } else {
-//       console.log(req.params)
-//       res.send({ message: 'Fetched Users', users: users })
-//     }
-//   })
-// }
+    for (const registration of player.registrations) {
+      const registrationMatches = await Match.find(
+        {
+          $or: [
+            { registration1: registration },
+            { registration2: registration },
+          ],
+        },
+        { sets: 1, registration1: 1, registration2: 1 }
+      )
+        .populate({
+          path: 'registration1',
+          select: ['players'],
+          populate: {
+            path: 'players',
+            select: ['full_name', 'club'],
+            populate: { path: 'club', select: 'image_url' },
+          },
+        })
+        .populate({
+          path: 'registration2',
+          select: ['players'],
+          populate: {
+            path: 'players',
+            select: ['full_name', 'club'],
+            populate: { path: 'club', select: 'image_url' },
+          },
+        })
+
+      matches.push(...registrationMatches)
+    }
+
+    res.status(200).json({ message: 'Fetched Matches', matches: matches })
+  } catch (error) {
+    res.status(400).json({ message: 'Something went wrong.' })
+  }
+}
 
 // GET: return all users
 const findAll = (req, res) => {
@@ -657,6 +673,30 @@ const forgotPassword = async (req, res) => {
   }
 }
 
+const sendVerificationEmail = async (req, res) => {
+  try {
+    console.log(auth.currentUser)
+    await sendEmailVerification(req.currentUser)
+      .then((response) => {
+        console.log(response)
+        res.status(200).send({
+          message: 'Verification email sent, please check your inbox!',
+        })
+      })
+      .catch((e) => {
+        console.log('Error sending verification Email: ' + e)
+        res.status(400).send({
+          message: error,
+        })
+      })
+  } catch (error) {
+    console.log(error)
+    res.status(400).send({
+      message: error,
+    })
+  }
+}
+
 export default {
   findAll,
   findOne,
@@ -669,8 +709,9 @@ export default {
   uploadProfilePicture,
   // verifyEmail,
   getUserData,
-  getDeveloperTitle,
+  getPlayerMatches,
   getUserRegisteredEventIds,
   registerNotificationToken,
   forgotPassword,
+  sendVerificationEmail,
 }

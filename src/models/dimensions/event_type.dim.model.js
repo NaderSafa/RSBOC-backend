@@ -31,6 +31,8 @@ const eventTypeSchema = new Schema({
   max_group_teams: { type: Number },
   min_group_teams: { type: Number },
   starting_round: { type: Number },
+  points_per_win: { type: Number },
+  points_per_lose: { type: Number },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
   // time based info

@@ -57,6 +57,7 @@ export default (express, passport, adminJs) => {
       )
       .use('/group', getCrudMethods(GroupController, 'group_id'))
       .use('/match', getCrudMethods(MatchController, 'match_id'))
+      .get('/users/:user_id/matches', UsersController.getPlayerMatches)
       .patch(
         '/registration/:registration_id',
         authenticateUser,

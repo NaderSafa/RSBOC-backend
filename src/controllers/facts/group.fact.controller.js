@@ -18,25 +18,73 @@ const findAll = async (req, res) => {
 
     if (req.query.event) query.event = req.query.event
 
+    const event = await Event.findOne(
+      { _id: req.query.event },
+      { event_type: 1, _id: 0 }
+    ).populate({
+      path: 'event_type',
+      select: ['points_per_win', 'points_per_lose'],
+    })
+
     const groups = await Group.find(
       query,
-      {},
+      { name: 1, registrations: 1 },
       {
         sort: { [req.query.sortByField]: req.query.sortByOrder || 1 },
         limit: limit,
         skip: (page - 1) * limit,
       }
-    ).populate({
-      path: 'registrations',
-      select: ['players', 'club'],
-      populate: {
-        path: 'players',
-        select: ['full_name', 'club'],
-        populate: { path: 'club', select: 'image_url' },
-      },
-    })
+    )
+      .populate({
+        path: 'registrations',
+        select: [
+          'players',
+          'matches_won',
+          'matches_lost',
+          'sets_won',
+          'sets_lost',
+        ],
+        populate: {
+          path: 'players',
+          select: ['full_name', 'club'],
+          populate: { path: 'club', select: 'image_url' },
+        },
+      })
+      .lean()
 
     const totalCount = await Group.countDocuments(query)
+
+    // const transformedGroups = groups.map((group) => {
+    //   return {
+    //     ...group,
+    //     registrations: group.registrations.map((registration) => {
+    //       return {
+    //         ...registration,
+    //         matches_played:
+    //           registration.matches_won || registration.matches_lost
+    //             ? registration.matches_won + registration.matches_lost
+    //             : 0,
+    //         group_points:
+    //           registration.matches_won || registration.matches_lost
+    //             ? registration.matches_won * event.event_type.points_per_win +
+    //               registration.matches_lost * event.event_type.points_per_lose
+    //             : 0,
+    //         sets_difference:
+    //           registration.sets_won || registration.sets_lost
+    //             ? registration.sets_won - registration.sets_lost
+    //             : 0,
+    //         matches_won: registration.matches_won
+    //           ? registration.matches_won
+    //           : 0,
+    //         matches_lost: registration.matches_lost
+    //           ? registration.matches_lost
+    //           : 0,
+    //         sets_won: registration.sets_won ? registration.sets_won : 0,
+    //         sets_lost: registration.sets_lost ? registration.sets_lost : 0,
+    //       }
+    //     }),
+    //   }
+    // })
 
     res.status(200).json({
       message: 'Fetched Groups',
