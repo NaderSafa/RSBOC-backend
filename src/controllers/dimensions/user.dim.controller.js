@@ -1,11 +1,6 @@
 import User from '../../models/dimensions/user.dim.model.js'
 import Match from '../../models/facts/match.fact.model.js'
-import Registration from '../../models/facts/registration.fact.model.js'
-import Developer from '../../models/developer.js'
-import Attachment from '../../models/attachment.js'
 import jwt from 'jsonwebtoken'
-import mongodb from 'mongodb'
-import multer from 'multer'
 
 import {
   getAuth,

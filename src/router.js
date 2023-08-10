@@ -3,7 +3,6 @@ import ChampionshipController from './controllers/dimensions/championship.dim.co
 import TournamentController from './controllers/facts/tournament.fact.controller.js'
 import RegistrationController from './controllers/facts/registration.fact.controller.js'
 // import RegistrationsController from './controllers/registrations.js'
-import ResultsController from './controllers/results.js'
 // import NotificationsController from './controllers/notifications.js'
 import authenticateUser from './middlewares/authenticateUser.js'
 import authorizeUser from './middlewares/authorizeUser.js'
