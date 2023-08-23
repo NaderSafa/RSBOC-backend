@@ -1,5 +1,6 @@
 // returns an array of round representations (array of player pairs).
-export const generateMatches = (n, ps) => {
+
+export const roundRobin = (n, ps) => {
   // n = num players , ps = players set (with order)
   const DUMMY = -1
 

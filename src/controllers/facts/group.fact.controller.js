@@ -7,7 +7,7 @@ import Event from '../../models/bridges/event.bridge.model.js'
 import { storage } from '../../../utils/firebaseInitialization.js'
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 import { ObjectId } from 'mongodb'
-import { generateMatches } from '../../../utils/generateMatches.js'
+import { roundRobin } from '../../../utils/matches/roundRobin.js'
 
 // GET: return all users
 const findAll = async (req, res) => {
@@ -169,7 +169,7 @@ const create = async (req, res) => {
           )
         })
 
-        const matches = generateMatches(registrations.length, registrations)
+        const matches = roundRobin(registrations.length, registrations)
 
         for (let round = 0; round < matches.length; round++) {
           for (let match = 0; match < matches[round].length; match++) {

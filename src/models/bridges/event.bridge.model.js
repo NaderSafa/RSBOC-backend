@@ -35,7 +35,6 @@ const eventBridgeSchema = new Schema({
       default: [],
     },
   ],
-
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
 })
