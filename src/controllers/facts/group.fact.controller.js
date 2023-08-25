@@ -18,13 +18,13 @@ const findAll = async (req, res) => {
 
     if (req.query.event) query.event = req.query.event
 
-    const event = await Event.findOne(
-      { _id: req.query.event },
-      { event_type: 1, _id: 0 }
-    ).populate({
-      path: 'event_type',
-      select: ['points_per_win', 'points_per_lose'],
-    })
+    // const event = await Event.findOne(
+    //   { _id: req.query.event },
+    //   { event_type: 1, _id: 0 }
+    // ).populate({
+    //   path: 'event_type',
+    //   select: ['points_per_win', 'points_per_lose'],
+    // })
 
     const groups = await Group.find(
       query,
@@ -43,6 +43,7 @@ const findAll = async (req, res) => {
           'matches_lost',
           'sets_won',
           'sets_lost',
+          'qualified',
         ],
         populate: {
           path: 'players',

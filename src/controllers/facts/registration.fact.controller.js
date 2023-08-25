@@ -229,20 +229,68 @@ const getUserData = async (req, res) => {
 // Handle update user info
 const update = async (req, res) => {
   try {
+    const updates = {}
+
+    if (req.body.qualified !== undefined) updates.qualified = req.body.qualified
+    if (req.body.points) updates.points = req.body.points
+
     await Registration.updateOne(
       {
         _id: req.params.registration_id,
       },
       {
         $set: {
-          points: req.body.points,
+          ...updates,
           updatedAt: Date.now(),
         },
       }
     )
-    res.status(200).json({
-      message: 'Registration updated successfully!',
-    })
+
+    if (req.body.qualified === true) {
+      const registration = await Registration.findOne(
+        {
+          _id: req.params.registration_id,
+        },
+        { players: 1 }
+      )
+      new Registration({
+        event: req.body.qualifiedTo,
+        players: registration.players,
+        qualifiers_id: registration._id,
+      }).save(async (error, registration) => {
+        if (error || !registration) {
+          console.log(error)
+          res.status(500).send(error)
+        } else {
+          registration.players.forEach(async (player) => {
+            await User.updateOne(
+              { _id: player },
+              {
+                $push: {
+                  registrations: registration._id,
+                  registered_events: req.body.qualifiedTo,
+                },
+              }
+            )
+          })
+
+          await Event.updateOne(
+            { _id: req.body.qualifiedTo },
+            { $push: { registrations: registration._id } }
+          )
+
+          res.status(200).json({
+            message: 'Registration added successfully!',
+            registration,
+          })
+          console.log('success')
+        }
+      })
+    } else {
+      res.status(200).json({
+        message: 'Registration updated successfully!',
+      })
+    }
   } catch (err) {
     console.log(err)
     console.log('Catch - update - RegistrationController')

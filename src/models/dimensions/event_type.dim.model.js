@@ -25,14 +25,14 @@ const eventTypeSchema = new Schema({
   tie_breaks: { type: Number },
   tournament_format: {
     type: String,
-    enum: ['groups', 'single elimination'],
+    enum: ['groups', 'single elimination', 'double elimination'],
   },
-  third_place_playoff: { type: Boolean },
-  max_group_teams: { type: Number },
-  min_group_teams: { type: Number },
-  starting_round: { type: Number },
-  points_per_win: { type: Number },
-  points_per_lose: { type: Number },
+  consolation: { type: Boolean }, // if tournament_format === 'single elimination'
+  starting_round: { type: Number }, // if tournament_format === 'double elimination'
+  max_group_teams: { type: Number }, // if tournament_format === 'groups'
+  min_group_teams: { type: Number }, // if tournament_format === 'groups'
+  points_per_win: { type: Number }, // if tournament_format === 'groups'
+  points_per_lose: { type: Number }, // if tournament_format === 'groups'
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
   // time based info

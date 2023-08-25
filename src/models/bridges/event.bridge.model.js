@@ -13,6 +13,14 @@ const eventBridgeSchema = new Schema({
     ref: 'EventType',
     required: true,
   },
+  qualifiers: {
+    type: Schema.ObjectId,
+    ref: 'Event',
+  },
+  finals: {
+    type: Schema.ObjectId,
+    ref: 'Event',
+  },
   groups: [
     {
       type: Schema.ObjectId,

@@ -15,17 +15,22 @@ const registrationSchema = new Schema({
     ref: 'Event',
     required: true,
   },
+  qualifiers_id: {
+    type: Schema.ObjectId,
+    ref: 'Registration',
+  },
   fees: { type: Number },
-  currency: { type: String },
+  currency: { type: String, enum: ['EGP'] },
   payment_method: { type: String, enum: ['cash', 'instapay'] },
   payment_image_url: { type: String },
   preferred_dates: [{ type: Date }],
   group: { type: Schema.ObjectId, ref: 'Group' },
-  points: { type: Number },
-  matches_won: { type: Number },
-  matches_lost: { type: Number },
-  sets_won: { type: Number },
-  sets_lost: { type: Number },
+  points: { type: Number }, // if group
+  matches_won: { type: Number }, // if group
+  matches_lost: { type: Number }, // if group
+  sets_won: { type: Number }, // if group
+  sets_lost: { type: Number }, // if group
+  qualified: { type: Boolean }, // if the event is qualifying to another event
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
   updatedAt: { type: Date, default: () => Date.now() },
