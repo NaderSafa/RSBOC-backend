@@ -1,4 +1,7 @@
 import Event from '../../models/bridges/event.bridge.model.js'
+import Match from '../../models/facts/match.fact.model.js'
+import { singleElimination } from '../../../utils/matches/singleElimination.js'
+import { ObjectId } from 'mongodb'
 
 // Handle index actions
 const findAll = async (req, res) => {
@@ -143,10 +146,60 @@ const destroy = (req, res) => {
   })
 }
 
+const createSingleEliminationBracket = (req, res) => {
+  try {
+    if (!req.body.orderedRegistrations)
+      throw new Error('Please provide registrations')
+
+    const count = Match.countDocuments({ event: req.params.event_id })
+
+    if (count > 0) throw new Error('Event bracket already created')
+
+    const matches = singleElimination(
+      req.body.orderedRegistrations,
+      req.params.event_id
+    )
+
+    matches.forEach((match) => {
+      match.registration1 = match.registration1
+        ? new ObjectId(match.registration1)
+        : null
+      // : new ObjectId('000000000000000000000000')
+      match.registration2 = match.registration2
+        ? new ObjectId(match.registration2)
+        : null
+      // : new ObjectId('000000000000000000000000')
+      // console.log(match.registration1, match.registration2)
+      new Match({
+        ...match,
+      }).save((error, match) => {
+        if (error || !match) {
+          console.log(error)
+          res.status(500).json({ message: error.message })
+        }
+      })
+    })
+
+    res
+      .status(200)
+      .json({ message: 'Single Elimination bracket created successfully' })
+  } catch (err) {
+    console.log(err)
+    console.log(
+      'Catch - createSingleEliminationBracket - EventBridgeController'
+    )
+
+    res.status(400).json({
+      message: err?.message ? err.message : 'Something went wrong.',
+    })
+  }
+}
+
 export default {
   findAll,
   findOne,
   create,
   update,
   destroy,
+  createSingleEliminationBracket,
 }

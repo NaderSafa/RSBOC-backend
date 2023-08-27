@@ -230,8 +230,15 @@ const getUserData = async (req, res) => {
 const update = async (req, res) => {
   try {
     const updates = {}
+    let count = 1
 
-    if (req.body.qualified !== undefined) updates.qualified = req.body.qualified
+    if (req.body.qualifiedTo)
+      count = await Match.countDocuments({
+        event: req.body.qualifiedTo,
+      })
+
+    if (req.body.qualified !== undefined && count === 0)
+      updates.qualified = req.body.qualified
     if (req.body.points) updates.points = req.body.points
 
     await Registration.updateOne(
@@ -247,6 +254,8 @@ const update = async (req, res) => {
     )
 
     if (req.body.qualified === true) {
+      if (count > 0) throw new Error('Event bracket already generated')
+
       const registration = await Registration.findOne(
         {
           _id: req.params.registration_id,
@@ -296,7 +305,7 @@ const update = async (req, res) => {
     console.log('Catch - update - RegistrationController')
 
     res.status(400).json({
-      message: 'Something went wrong.',
+      message: err?.message ? err.message : 'Something went wrong.',
     })
   }
 }

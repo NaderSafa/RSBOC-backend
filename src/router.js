@@ -76,7 +76,12 @@ export default (express, passport, adminJs) => {
         upload.single('filename'),
         RegistrationController.uploadRegistrationSS
       )
-
+      .post(
+        '/event/:event_id/single-elimination',
+        authenticateUser,
+        authorizeUser(['admin', 'championship']),
+        EventController.createSingleEliminationBracket
+      )
       .post(
         '/users/upload',
         authenticateUser,
